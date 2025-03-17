@@ -1,5 +1,148 @@
+import { Button, Checkbox, Form, FormProps, Input, notification } from "antd";
+import { Link, useNavigate } from "react-router-dom";
+import { loginApi } from "../services/api";
+import { useCurrentApp } from "@/context/app.context";
+
+type FieldType = {
+  username: string;
+  password: string;
+  remember: boolean;
+};
+
 function LoginPage() {
-  return <div>login p</div>;
+  const [form] = Form.useForm();
+  const navigate = useNavigate();
+  const { setIsAuthenticated, setUser } = useCurrentApp();
+
+  const onFinish: FormProps<FieldType>["onFinish"] = async (values) => {
+    const { username, password } = values;
+
+    const res = await loginApi(username, password);
+    if (res?.data) {
+      setIsAuthenticated(true);
+      setUser(res.data.user);
+      localStorage.setItem("access_token", res.data.access_token);
+      notification.success({
+        message: "Success!",
+        description: "Login successful!",
+      });
+      navigate("/");
+    } else {
+      notification.error({
+        message: "Failed !",
+        description: "Login Failed!",
+      });
+
+      throw new Error("Invalid credentials");
+    }
+  };
+
+  return (
+    <div
+      style={{
+        maxWidth: "400px",
+        margin: "50px auto",
+        padding: "20px",
+        background: "#ffffff",
+        borderRadius: "8px",
+        boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
+        textAlign: "center",
+      }}
+    >
+      <h2
+        style={{
+          fontSize: "24px",
+          fontWeight: "bold",
+          color: "#333",
+          marginBottom: "20px",
+        }}
+      >
+        Login
+      </h2>
+
+      <Form
+        form={form}
+        name="login"
+        layout="vertical"
+        initialValues={{ remember: true }}
+        onFinish={onFinish}
+        autoComplete="off"
+      >
+        <Form.Item<FieldType>
+          label={
+            <span style={{ fontWeight: "bold", color: "#333" }}>Username</span>
+          }
+          name="username"
+          rules={[{ required: true, message: "Please input your username!" }]}
+        >
+          <Input
+            style={{
+              width: "100%",
+              borderRadius: "6px",
+              padding: "8px",
+              border: "1px solid #ccc",
+            }}
+          />
+        </Form.Item>
+
+        <Form.Item<FieldType>
+          label={
+            <span style={{ fontWeight: "bold", color: "#333" }}>Password</span>
+          }
+          name="password"
+          rules={[{ required: true, message: "Please input your password!" }]}
+        >
+          <Input.Password
+            style={{
+              width: "100%",
+              borderRadius: "6px",
+              padding: "8px",
+              border: "1px solid #ccc",
+            }}
+          />
+        </Form.Item>
+
+        <Form.Item<FieldType> name="remember" valuePropName="checked">
+          <Checkbox>Remember me</Checkbox>
+        </Form.Item>
+
+        <Form.Item>
+          <Button
+            type="primary"
+            htmlType="submit"
+            style={{
+              width: "100%",
+              maxWidth: "200px",
+              height: "40px",
+              fontSize: "16px",
+              backgroundColor: "#4096ff",
+              color: "white",
+              border: "none",
+              borderRadius: "6px",
+              cursor: "pointer",
+            }}
+          >
+            Login
+          </Button>
+        </Form.Item>
+
+        <div style={{ margin: "10px 0", fontWeight: "bold" }}>Or</div>
+
+        <div>
+          Don't have an account?{" "}
+          <span
+            style={{
+              color: "#4096ff",
+              cursor: "pointer",
+              fontWeight: "bold",
+            }}
+          >
+            <Link to={"/register"}> Register</Link>
+          </span>
+        </div>
+      </Form>
+    </div>
+  );
 }
 
 export default LoginPage;
