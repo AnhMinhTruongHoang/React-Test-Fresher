@@ -27,8 +27,7 @@ export const registerApi = (
     phone,
   });
 };
-
-export default {
-  loginApi,
-  registerApi,
+export const fetchAccountApi = () => {
+  const urlBackend = "/api/v1/auth/account";
+  return axios.get<IBackendRes<IFetchAccount>>(urlBackend);
 };
