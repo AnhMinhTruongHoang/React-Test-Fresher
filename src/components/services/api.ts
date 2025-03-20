@@ -29,5 +29,17 @@ export const registerApi = (
 };
 export const fetchAccountApi = () => {
   const urlBackend = "/api/v1/auth/account";
-  return axios.get<IBackendRes<IFetchAccount>>(urlBackend);
+  return axios.get<IBackendRes<IFetchAccount>>(urlBackend, {
+    headers: {
+      delay: 2000,
+    },
+  });
+};
+export const logoutApi = () => {
+  const urlBackend = "/api/v1/auth/logout";
+  return axios.post<IBackendRes<IFetchAccount>>(urlBackend);
+};
+export const getUsersApi = (query: string) => {
+  const urlBackend = `/api/v1/user?${query}`;
+  return axios.get<IBackendRes<IModelPaginate<IUserTable>>>(urlBackend);
 };
