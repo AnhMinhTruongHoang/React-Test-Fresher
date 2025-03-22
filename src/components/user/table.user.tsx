@@ -6,6 +6,7 @@ import { Fragment, useRef, useState } from "react";
 import { getUsersApi } from "../services/api";
 import { dateRangeValidate } from "../services/helper";
 import UserDetails from "./user.view";
+import CreateUserModal from "./user.create";
 
 type TSearch = {
   fullName: string;
@@ -27,7 +28,11 @@ const TableUser = () => {
   const [meta, setMeta] = useState({ current: 1, pageSize: 5, total: 0 });
   const [openViewData, setOpenViewData] = useState<boolean>(false);
   const [dataView, setDataView] = useState<IUserTable | null>(null);
+  const [openCreateUser, setOpenCreateUser] = useState<boolean>(false);
 
+  const refreshTable = () => {
+    actionRef.current?.reload();
+  };
   // const showDrawer = () => {
   //   setOpenViewData(true);
   // };
@@ -143,9 +148,13 @@ const TableUser = () => {
             query += `&createdAt[gte]=${createDateRange[0]}&createdAt[lte]=${createDateRange[1]}`;
           }
 
-          Object.keys(sort).forEach((key) => {
-            query += `&sort=${sort[key] === "ascend" ? key : "-" + key}`;
-          });
+          if (!sort || Object.keys(sort).length === 0) {
+            query += "&sort=-createdAt"; // soft logic
+          } else {
+            Object.keys(sort).forEach((key) => {
+              query += `&sort=${sort[key] === "ascend" ? key : "-" + key}`;
+            });
+          }
 
           const res = await getUsersApi(query);
           if (res.data) setMeta(res.data.meta);
@@ -177,7 +186,9 @@ const TableUser = () => {
           <Button
             key="button"
             icon={<PlusOutlined />}
-            onClick={() => actionRef.current?.reload()}
+            onClick={() => {
+              setOpenCreateUser(true);
+            }}
             type="primary"
           >
             Add New
@@ -189,6 +200,11 @@ const TableUser = () => {
         setOpenViewData={setOpenViewData}
         dataView={dataView}
         setDataView={setDataView}
+      />
+      <CreateUserModal
+        openCreateUser={openCreateUser}
+        setOpenCreateUser={setOpenCreateUser}
+        refreshTable={refreshTable}
       />
     </Fragment>
   );
