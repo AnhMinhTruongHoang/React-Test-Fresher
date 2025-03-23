@@ -1,7 +1,6 @@
 import { App, Button, Form, FormProps, Input, InputNumber, Modal } from "antd";
 import { createUsersApi } from "../services/api";
 
-
 interface IProps {
   openCreateUser: boolean;
   setOpenCreateUser: (v: boolean) => void;

@@ -1,4 +1,9 @@
-import { PlusOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons";
+import {
+  PlusOutlined,
+  EditOutlined,
+  DeleteOutlined,
+  ImportOutlined,
+} from "@ant-design/icons";
 import type { ActionType, ProColumns } from "@ant-design/pro-components";
 import { ProTable } from "@ant-design/pro-components";
 import { Button, Tag, Space, Popconfirm } from "antd";
@@ -7,6 +12,7 @@ import { getUsersApi } from "../services/api";
 import { dateRangeValidate } from "../services/helper";
 import UserDetails from "./user.view";
 import CreateUserModal from "./user.create";
+import FilesUpLoadModal from "./user.import";
 
 type TSearch = {
   fullName: string;
@@ -29,6 +35,7 @@ const TableUser = () => {
   const [openViewData, setOpenViewData] = useState<boolean>(false);
   const [dataView, setDataView] = useState<IUserTable | null>(null);
   const [openCreateUser, setOpenCreateUser] = useState<boolean>(false);
+  const [openUpload, setOpenUpload] = useState<boolean>(false);
 
   const refreshTable = () => {
     actionRef.current?.reload();
@@ -193,6 +200,16 @@ const TableUser = () => {
           >
             Add New
           </Button>,
+          <Button
+            key="button"
+            icon={<ImportOutlined />}
+            onClick={() => {
+              setOpenUpload(true);
+            }}
+            type="primary"
+          >
+            Import
+          </Button>,
         ]}
       />
       <UserDetails
@@ -206,6 +223,7 @@ const TableUser = () => {
         setOpenCreateUser={setOpenCreateUser}
         refreshTable={refreshTable}
       />
+      <FilesUpLoadModal openUpload={openUpload} setOpenUpload={setOpenUpload} />
     </Fragment>
   );
 };
