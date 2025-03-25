@@ -57,3 +57,15 @@ export const createUsersApi = (
     phone,
   });
 };
+
+export const bulkCreateUserAPI = (
+  data: {
+    fullName: string;
+    password: string;
+    email: string;
+    phone: string;
+  }[]
+) => {
+  const urlBackend = "/api/v1/user/bulk-create";
+  return axios.post<IBackendRes<IResponseImport>>(urlBackend, data);
+};

@@ -223,7 +223,11 @@ const TableUser = () => {
         setOpenCreateUser={setOpenCreateUser}
         refreshTable={refreshTable}
       />
-      <FilesUpLoadModal openUpload={openUpload} setOpenUpload={setOpenUpload} />
+      <FilesUpLoadModal
+        openUpload={openUpload}
+        setOpenUpload={setOpenUpload}
+        refreshTable={refreshTable}
+      />
     </Fragment>
   );
 };

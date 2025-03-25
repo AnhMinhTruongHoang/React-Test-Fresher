@@ -1,12 +1,14 @@
 import { InboxOutlined } from "@ant-design/icons";
 import type { UploadProps } from "antd";
 import Exceljs from "exceljs";
-import { message, Modal, Table, Upload } from "antd";
+import { message, Modal, notification, Table, Upload } from "antd";
 import { useState } from "react";
+import { bulkCreateUserAPI } from "../services/api";
 
 interface IProps {
   openUpload: boolean;
   setOpenUpload: (v: boolean) => void;
+  refreshTable: () => void;
 }
 
 type IDataImport = {
@@ -16,9 +18,14 @@ type IDataImport = {
   phone: string;
 };
 
-const FilesUpLoadModal = ({ openUpload, setOpenUpload }: IProps) => {
+const FilesUpLoadModal = ({
+  openUpload,
+  setOpenUpload,
+  refreshTable,
+}: IProps) => {
   const { Dragger } = Upload;
   const [dataImport, setDataImport] = useState<IDataImport[]>([]);
+  const [isSubmit, setIsSubmit] = useState<boolean>(false);
 
   const prop: UploadProps = {
     name: "file",
@@ -57,22 +64,25 @@ const FilesUpLoadModal = ({ openUpload, setOpenUpload }: IProps) => {
             const firstRow = sheet.getRow(1);
             if (!firstRow.cellCount) return;
 
-            const keys = firstRow.values?.filter((key) => key) as string[];
+            let keys = firstRow.values as any[];
 
             sheet.eachRow((row, rowNumber) => {
               if (rowNumber === 1) return;
               const values = row.values as any;
-              let obj: IDataImport = {
-                key: rowNumber.toString(), // Unique key for React
-                fullName: values[1] || "",
-                email: values[2] || "",
-                phone: values[3] || "",
-              };
+              let obj: any = {};
+
+              for (let i = 0; i < keys.length; i++) {
+                obj[keys[i]] = values[i];
+                obj.id = i;
+              }
 
               jsonData.push(obj);
             });
           });
 
+          jsonData = jsonData.map((item, index) => {
+            return { ...item, id: index + 1 };
+          });
           setDataImport(jsonData);
         } catch (error) {
           console.error("Error processing file:", error);
@@ -88,18 +98,41 @@ const FilesUpLoadModal = ({ openUpload, setOpenUpload }: IProps) => {
     },
   };
 
+  const handleImport = async () => {
+    setIsSubmit(true);
+    const dataSubmit = dataImport.map((item) => ({
+      fullName: item.fullName,
+      email: item.email,
+      phone: item.phone,
+      password: import.meta.env.VITE_USER_CREATE_DEFAULT_PASSWORD,
+    }));
+    const res = await bulkCreateUserAPI(dataSubmit);
+    if (res.data) {
+      notification.success({
+        message: "Bulk Created",
+        description: `Success = ${res.data.countSuccess}. Error = ${res.data.countError}`,
+      });
+    }
+    setIsSubmit(false);
+    setOpenUpload(false);
+    setDataImport([]);
+    refreshTable();
+  };
+
   return (
     <Modal
       title="Import user file"
       width={"50vw"}
       open={openUpload}
-      onOk={() => setOpenUpload(false)}
+      onOk={() => handleImport()}
       onCancel={() => {
         setOpenUpload(false);
         setDataImport([]);
       }}
+      okText="Import data"
       okButtonProps={{
-        disabled: true,
+        disabled: dataImport.length > 0 ? false : true,
+        loading: isSubmit,
       }}
     >
       <Dragger {...prop}>
@@ -117,9 +150,9 @@ const FilesUpLoadModal = ({ openUpload, setOpenUpload }: IProps) => {
       <hr />
       <div>
         <Table
+          rowKey={"id"}
           title={() => <span>Data</span>}
           dataSource={dataImport}
-          rowKey="key" // Add this to properly render rows
           columns={[
             { dataIndex: "fullName", title: "UserName" },
             { dataIndex: "email", title: "Email" },
