@@ -4,6 +4,7 @@ import Exceljs from "exceljs";
 import { message, Modal, notification, Table, Upload } from "antd";
 import { useState } from "react";
 import { bulkCreateUserAPI } from "../services/api";
+import templateFile from "assets/template/user.xlsx?url";
 
 interface IProps {
   openUpload: boolean;
@@ -12,7 +13,7 @@ interface IProps {
 }
 
 type IDataImport = {
-  key: string; // Added unique key
+  key: string;
   fullName: string;
   email: string;
   phone: string;
@@ -88,7 +89,8 @@ const FilesUpLoadModal = ({
           console.error("Error processing file:", error);
           message.error("File processing failed.");
         }
-      } else if (status === "error") {
+      }
+      if (status === "error") {
         message.error(`${info.file.name} file upload failed`);
       }
     },
@@ -146,6 +148,9 @@ const FilesUpLoadModal = ({
           Support for a single or bulk upload. Strictly prohibited from
           uploading company data or other banned files.
         </p>
+        <a onClick={(e) => e.stopPropagation()} href={templateFile} download>
+          Download Template
+        </a>
       </Dragger>
       <hr />
       <div>

@@ -3,6 +3,7 @@ import {
   EditOutlined,
   DeleteOutlined,
   ImportOutlined,
+  ExportOutlined,
 } from "@ant-design/icons";
 import type { ActionType, ProColumns } from "@ant-design/pro-components";
 import { ProTable } from "@ant-design/pro-components";
@@ -13,6 +14,8 @@ import { dateRangeValidate } from "../services/helper";
 import UserDetails from "./user.view";
 import CreateUserModal from "./user.create";
 import FilesUpLoadModal from "./user.import";
+import { CSVLink } from "react-csv";
+import UpdateUserModal from "./user.update";
 
 type TSearch = {
   fullName: string;
@@ -32,17 +35,22 @@ const handleDelete = (id: string) => {
 const TableUser = () => {
   const actionRef = useRef<ActionType>();
   const [meta, setMeta] = useState({ current: 1, pageSize: 5, total: 0 });
+
   const [openViewData, setOpenViewData] = useState<boolean>(false);
+
   const [dataView, setDataView] = useState<IUserTable | null>(null);
+
   const [openCreateUser, setOpenCreateUser] = useState<boolean>(false);
+
+  const [dataUpdate, setDataUpdate] = useState<IUserTable | null>(null);
+  const [openUpdateUser, setOpenUpdateUser] = useState<boolean>(false);
+
   const [openUpload, setOpenUpload] = useState<boolean>(false);
+  const [currentDataTable, setCurrentDataTable] = useState<IUserTable[]>([]);
 
   const refreshTable = () => {
     actionRef.current?.reload();
   };
-  // const showDrawer = () => {
-  //   setOpenViewData(true);
-  // };
 
   const columns: ProColumns<IUserTable>[] = [
     {
@@ -124,7 +132,10 @@ const TableUser = () => {
           <Button
             type="link"
             icon={<EditOutlined />}
-            onClick={() => handleEdit(record)}
+            onClick={() => {
+              setDataUpdate(record);
+              setOpenUpdateUser(true);
+            }}
           />
           <Popconfirm
             title="Are you sure to delete this user?"
@@ -164,7 +175,10 @@ const TableUser = () => {
           }
 
           const res = await getUsersApi(query);
-          if (res.data) setMeta(res.data.meta);
+          if (res.data) {
+            setMeta(res.data.meta);
+            setCurrentDataTable(res.data?.result ?? []);
+          }
 
           return {
             data: res.data?.result || [],
@@ -200,15 +214,26 @@ const TableUser = () => {
           >
             Add New
           </Button>,
+
           <Button
             key="button"
             icon={<ImportOutlined />}
             onClick={() => {
               setOpenUpload(true);
             }}
-            type="primary"
+            style={{ backgroundColor: "yellow" }}
           >
             Import
+          </Button>,
+
+          <Button
+            key="button"
+            icon={<ExportOutlined />}
+            style={{ backgroundColor: "green" }}
+          >
+            <CSVLink data={currentDataTable} filename="export-user.csv">
+              Export
+            </CSVLink>
           </Button>,
         ]}
       />
@@ -223,6 +248,14 @@ const TableUser = () => {
         setOpenCreateUser={setOpenCreateUser}
         refreshTable={refreshTable}
       />
+      <UpdateUserModal
+        dataUpdate={dataUpdate}
+        setDataUpdate={setDataUpdate}
+        openUpdateUser={openUpdateUser}
+        setOpenUpdateUser={setOpenUpdateUser}
+        refreshTable={refreshTable}
+      />
+
       <FilesUpLoadModal
         openUpload={openUpload}
         setOpenUpload={setOpenUpload}

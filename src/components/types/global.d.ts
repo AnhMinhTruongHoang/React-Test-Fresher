@@ -33,6 +33,11 @@ declare global {
     fullName: string;
     email: string;
   }
+  interface IUpdateUser {
+    _id: string;
+    fullName: string;
+    phone: string;
+  }
 
   interface IUser {
     email: string;

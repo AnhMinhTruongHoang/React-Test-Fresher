@@ -57,6 +57,18 @@ export const createUsersApi = (
     phone,
   });
 };
+export const updateUsersApi = (
+  _id: string,
+  fullName: string,
+  phone: string
+) => {
+  const urlBackend = "/api/v1/user";
+  return axios.put<IBackendRes<IUpdateUser>>(urlBackend, {
+    _id,
+    fullName,
+    phone,
+  });
+};
 
 export const bulkCreateUserAPI = (
   data: {
