@@ -1,6 +1,6 @@
 import { fetchAccountApi } from "@/components/services/api";
 import { createContext, useContext, useEffect, useState } from "react";
-import PacmanLoader from "react-spinners/PacmanLoader";
+import { BiLoaderCircle } from "react-icons/bi";
 
 interface IAppContext {
   isAuthenticated: boolean;
@@ -59,7 +59,7 @@ export const AppProvider = (props: TProps) => {
             transform: "translate(-50%, -50%)",
           }}
         >
-          <PacmanLoader size={30} color="#36d6b4" />
+          <BiLoaderCircle size={30} color="#36d6b4" />
         </div>
       )}
     </>

@@ -8,6 +8,7 @@ import {
   DollarCircleOutlined,
   MenuFoldOutlined,
   MenuUnfoldOutlined,
+  BookOutlined,
 } from "@ant-design/icons";
 import { Layout, Menu, Dropdown, Space, Avatar } from "antd";
 import { Navigate, Outlet } from "react-router-dom";
@@ -50,17 +51,19 @@ const LayoutAdmin = () => {
           key: "crud",
           icon: <TeamOutlined />,
         },
-        // {
-        //     label: 'Files1',
-        //     key: 'file1',
-        //     icon: <TeamOutlined />,
-        // }
       ],
     },
     {
       label: <Link to="/admin/book">Manage Books</Link>,
       key: "book",
       icon: <ExceptionOutlined />,
+      children: [
+        {
+          label: <Link to="/admin/book">CRUD</Link>,
+          key: "crud",
+          icon: <BookOutlined />,
+        },
+      ],
     },
     {
       label: <Link to="/admin/order">Manage Orders</Link>,

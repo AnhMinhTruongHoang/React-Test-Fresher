@@ -9,23 +9,24 @@ import type { ActionType, ProColumns } from "@ant-design/pro-components";
 import { ProTable } from "@ant-design/pro-components";
 import { Button, Tag, Space, Popconfirm, message } from "antd";
 import { Fragment, useRef, useState } from "react";
-import { deleteUsersApi, getUsersApi } from "../services/api";
+import { deleteUsersApi, getBookApi, getUsersApi } from "../services/api";
 import { dateRangeValidate } from "../services/helper";
-import UserDetails from "./user.view";
-import CreateUserModal from "./user.create";
-import FilesUpLoadModal from "./user.import";
 import { CSVLink } from "react-csv";
-import UpdateUserModal from "./user.update";
 import dayjs from "dayjs";
+import UserDetails from "../user/user.view";
+import CreateUserModal from "../user/user.create";
+import UpdateUserModal from "../user/user.update";
+import FilesUpLoadModal from "../user/user.import";
 
 type TSearch = {
-  fullName: string;
-  email: string;
+  mainText: string;
+  author: string;
+  sold: number;
   createdAt: string;
   createdAtRange: string;
 };
 
-const TableUser = () => {
+const TableBooks = () => {
   const actionRef = useRef<ActionType>();
   const [meta, setMeta] = useState({ current: 1, pageSize: 5, total: 0 });
 
@@ -83,40 +84,37 @@ const TableUser = () => {
     },
 
     {
-      title: "Full Name",
-      dataIndex: "fullName",
+      title: "Title",
+      dataIndex: "mainText",
       sorter: true,
     },
     {
-      title: "Email",
-      dataIndex: "email",
+      title: "Category",
+      dataIndex: "category",
       copyable: true,
       sorter: true,
     },
     {
-      title: "Phone",
-      dataIndex: "phone",
+      title: "Author",
+      dataIndex: "author",
       sorter: true,
     },
     {
-      title: "Role",
-      dataIndex: "role",
+      title: "Price",
+      dataIndex: "price",
       sorter: true,
     },
     {
-      title: "Avatar",
-      dataIndex: "avatar",
-    },
-    {
-      title: "Active Status",
-      dataIndex: "isActive",
+      title: "Sold",
+      dataIndex: "sold",
       sorter: true,
       render: (_, record) => (
-        <Tag color={record.isActive ? "green" : "red"}>
-          {record.isActive ? "Active" : "Inactive"}
+        <Tag color={record.sold <= 0 ? "green" : "red"}>
+          {record.sold <= 0 ? "In Stock" : "Sold Out"}
         </Tag>
       ),
     },
+
     {
       title: "Created At",
       dataIndex: "createdAt",
@@ -165,8 +163,8 @@ const TableUser = () => {
         cardBordered
         request={async (params, sort, filter) => {
           let query = `current=${params.current}&pageSize=${params.pageSize}`;
-          if (params.email) query += `&email=/${params.email}/i`;
-          if (params.fullName) query += `&fullName=/${params.fullName}/i`;
+          if (params.mainText) query += `&email=/${params.mainText}/i`;
+          if (params.author) query += `&fullName=/${params.author}/i`;
 
           const createDateRange = dateRangeValidate(params.createdAtRange);
           if (createDateRange) {
@@ -181,7 +179,7 @@ const TableUser = () => {
             });
           }
 
-          const res = await getUsersApi(query);
+          const res = await getBookApi(query);
           if (res.data) {
             setMeta(res.data.meta);
             setCurrentDataTable(res.data?.result ?? []);
@@ -209,7 +207,7 @@ const TableUser = () => {
             </div>
           ),
         }}
-        headerTitle="User Table"
+        headerTitle="Books Table"
         toolBarRender={() => [
           <Button
             key="button"
@@ -272,4 +270,4 @@ const TableUser = () => {
   );
 };
 
-export default TableUser;
+export default TableBooks;
