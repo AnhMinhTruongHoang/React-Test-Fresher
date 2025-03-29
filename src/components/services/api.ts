@@ -94,3 +94,28 @@ export const getBookApi = (query: string) => {
   const urlBackend = `/api/v1/book?${query}`;
   return axios.get<IBackendRes<IModelPaginate<IUserTable>>>(urlBackend);
 };
+
+export const getCategoryApi = () => {
+  const urlBackend = "/api/v1/database/category";
+  return axios.get<IBackendRes<String[]>>(urlBackend);
+};
+
+export const createBookApi = (
+  thumbnail: string,
+  slider: string[],
+  mainText: string,
+  price: number,
+  quantity: number,
+  category: number
+) => {
+  const urlBackend = "/api/v1/book";
+
+  return axios.post<IBackendRes<IBookTable>>(urlBackend, {
+    thumbnail,
+    slider,
+    mainText,
+    price,
+    quantity,
+    category,
+  });
+};

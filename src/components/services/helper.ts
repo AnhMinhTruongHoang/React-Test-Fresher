@@ -10,3 +10,5 @@ export const dateRangeValidate = (dateRange: any) => {
 
   return [startDate, endDate];
 };
+
+export const MAX_UPLOAD_IMAGE_SIZE = 2;

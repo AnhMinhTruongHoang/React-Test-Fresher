@@ -9,14 +9,14 @@ import type { ActionType, ProColumns } from "@ant-design/pro-components";
 import { ProTable } from "@ant-design/pro-components";
 import { Button, Tag, Space, Popconfirm, message } from "antd";
 import { Fragment, useRef, useState } from "react";
-import { deleteUsersApi, getBookApi, getUsersApi } from "../services/api";
+import { deleteUsersApi, getBookApi } from "../services/api";
 import { dateRangeValidate } from "../services/helper";
 import { CSVLink } from "react-csv";
 import dayjs from "dayjs";
-import UserDetails from "../user/user.view";
-import CreateUserModal from "../user/user.create";
 import UpdateUserModal from "../user/user.update";
 import FilesUpLoadModal from "../user/user.import";
+import BookDetails from "./book.detail";
+import CreateBookModal from "./book.create";
 
 type TSearch = {
   mainText: string;
@@ -32,15 +32,15 @@ const TableBooks = () => {
 
   const [openViewData, setOpenViewData] = useState<boolean>(false);
 
-  const [dataView, setDataView] = useState<IUserTable | null>(null);
+  const [dataView, setDataView] = useState<IBookTable | null>(null);
 
-  const [openCreateUser, setOpenCreateUser] = useState<boolean>(false);
+  const [openCreateBook, setOpenCreateBook] = useState<boolean>(false);
 
-  const [dataUpdate, setDataUpdate] = useState<IUserTable | null>(null);
+  const [dataUpdate, setDataUpdate] = useState<IBookTable | null>(null);
   const [openUpdateUser, setOpenUpdateUser] = useState<boolean>(false);
 
   const [openUpload, setOpenUpload] = useState<boolean>(false);
-  const [currentDataTable, setCurrentDataTable] = useState<IUserTable[]>([]);
+  const [currentDataTable, setCurrentDataTable] = useState<IBookTable[]>([]);
 
   const refreshTable = () => {
     actionRef.current?.reload();
@@ -57,7 +57,7 @@ const TableBooks = () => {
     }
   }; /////////delete
 
-  const columns: ProColumns<IUserTable>[] = [
+  const columns: ProColumns<IBookTable>[] = [
     {
       dataIndex: "index",
       valueType: "indexBorder",
@@ -109,7 +109,7 @@ const TableBooks = () => {
       dataIndex: "sold",
       sorter: true,
       render: (_, record) => (
-        <Tag color={record.sold <= 0 ? "green" : "red"}>
+        <Tag color={record.sold <= 0 ? "red" : "green"}>
           {record.sold <= 0 ? "In Stock" : "Sold Out"}
         </Tag>
       ),
@@ -157,7 +157,7 @@ const TableBooks = () => {
 
   return (
     <Fragment>
-      <ProTable<IUserTable, TSearch>
+      <ProTable<IBookTable, TSearch>
         columns={columns}
         actionRef={actionRef}
         cardBordered
@@ -213,7 +213,7 @@ const TableBooks = () => {
             key="button"
             icon={<PlusOutlined />}
             onClick={() => {
-              setOpenCreateUser(true);
+              setOpenCreateBook(true);
             }}
             type="primary"
           >
@@ -242,15 +242,15 @@ const TableBooks = () => {
           </Button>,
         ]}
       />
-      <UserDetails
+      <BookDetails
         openViewData={openViewData}
         setOpenViewData={setOpenViewData}
         dataView={dataView}
         setDataView={setDataView}
       />
-      <CreateUserModal
-        openCreateUser={openCreateUser}
-        setOpenCreateUser={setOpenCreateUser}
+      <CreateBookModal
+        openCreateBook={openCreateBook}
+        setOpenCreateBook={setOpenCreateBook}
         refreshTable={refreshTable}
       />
       <UpdateUserModal
