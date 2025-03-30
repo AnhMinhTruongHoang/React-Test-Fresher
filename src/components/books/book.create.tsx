@@ -27,13 +27,13 @@ type FileType = Parameters<GetProp<UploadProps, "beforeUpload">>[0];
 type UserUploadType = "thumbnail" | "slider";
 
 type FieldType = {
-  thumbnail: string;
-  slider: string;
   mainText: any;
+  author: string;
   price: number;
   quantity: number;
   category: any;
-  author: string;
+  thumbnail: string;
+  slider: string[];
 };
 
 const CreateBookModal = ({
@@ -83,22 +83,25 @@ const CreateBookModal = ({
     setIsSubmit(true);
 
     try {
-      const { thumbnail, slider, mainText, price, quantity, category, author } =
-        values;
+      const { mainText, author, price, quantity, category } = values;
+      const thumbnail = fileListThumbnail?.[0]?.name ?? "";
+      const slider = fileListSlider?.map((item) => item.name) ?? [];
 
       const resSubmit = await createBookAPI(
-        thumbnail,
-        slider,
         mainText,
+        author,
         price,
         quantity,
         category,
-        author
+        thumbnail,
+        slider
       );
 
       if (resSubmit.data) {
         message.success("Created successfully!");
         form.resetFields();
+        setFileListSlider([]);
+        setFileListThumbnail([]);
         setOpenCreateBook(false);
         refreshTable();
       } else {
@@ -112,7 +115,7 @@ const CreateBookModal = ({
       console.error("Form submission error:", error);
       message.error("Something went wrong. Please try again.");
     } finally {
-      setIsSubmit(false); // Ensure this always runs
+      setIsSubmit(false);
     }
   };
 
@@ -303,19 +306,13 @@ const CreateBookModal = ({
         >
           <Upload
             listType="picture-card"
-            className="avatar-uploader"
-            maxCount={1}
-            multiple={false}
             customRequest={(options) => handleUploadFile(options, "slider")}
-            beforeUpload={beforeUpload}
-            onChange={(info) => handleChange(info, "slider")}
-            onPreview={handlePreview}
-            onRemove={(file) => handleRemove(file, "slider")}
-            fileList={fileListThumbnail}
+            fileList={fileListSlider}
+            multiple
           >
             <div>
-              {loadingThumbnail ? <LoadingOutlined /> : <PlusOutlined />}
-              <div style={{ marginTop: 8 }}>Upload</div>
+              <PlusOutlined />
+              <div>Upload</div>
             </div>
           </Upload>
         </Form.Item>
