@@ -92,7 +92,7 @@ export const bulkCreateUserAPI = (
 
 export const getBookApi = (query: string) => {
   const urlBackend = `/api/v1/book?${query}`;
-  return axios.get<IBackendRes<IModelPaginate<IUserTable>>>(urlBackend);
+  return axios.get<IBackendRes<IModelPaginate<IBookTable>>>(urlBackend);
 };
 
 export const getCategoryApi = () => {
@@ -137,4 +137,30 @@ export const uploadFileAPI = (fileImg: any, folder: string) => {
       "upload-type": folder,
     },
   });
+};
+
+export const updateBookApi = (
+  _id: string,
+  thumbnail: string,
+  slider: string[],
+  mainText: string,
+  author: string,
+  price: number,
+  quantity: number,
+  category: string
+) => {
+  const urlBackend = `/api/v1/book/${_id}`;
+  return axios.put<IBackendRes<IUpdateBook>>(urlBackend, {
+    thumbnail,
+    slider,
+    mainText,
+    author,
+    price,
+    quantity,
+    category,
+  });
+};
+export const deleteBookApi = (_id: string) => {
+  const urlBackend = `/api/v1/book/${_id}`;
+  return axios.delete<IBackendRes<IUpdateBook>>(urlBackend);
 };

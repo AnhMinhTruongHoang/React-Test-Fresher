@@ -13,7 +13,6 @@ interface IProps {
 type FieldType = {
   _id: string;
   fullName: string;
-  password: string;
   email: string;
   phone: string;
 };
@@ -42,9 +41,8 @@ const UpdateUserModal = (props: IProps) => {
     } else {
       form.resetFields();
     }
-  }, [dataUpdate]);
+  }, [dataUpdate, form]);
 
-  ////////////////////////
   const onFinish: FormProps<FieldType>["onFinish"] = async (values) => {
     const { _id, fullName, phone } = values;
     setIsSubmit(true);

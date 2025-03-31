@@ -60,7 +60,7 @@ const LayoutAdmin = () => {
       children: [
         {
           label: <Link to="/admin/book">CRUD</Link>,
-          key: "crud",
+          key: "crudBook",
           icon: <BookOutlined />,
         },
       ],

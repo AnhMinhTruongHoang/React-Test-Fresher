@@ -69,7 +69,7 @@ declare global {
     countError: number;
     detail: any;
   }
-  
+
   //////////// book
 
   interface IBookTable {
@@ -84,5 +84,16 @@ declare global {
     category: string;
     createdAt: Date;
     updatedAt: Date;
+  }
+
+  interface IUpdateBook {
+    _id: string;
+    thumbnail: string;
+    slider: string[];
+    mainText: string;
+    author: string;
+    price: number;
+    quantity: number;
+    category: string;
   }
 }

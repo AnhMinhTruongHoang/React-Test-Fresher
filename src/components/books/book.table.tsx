@@ -2,9 +2,13 @@ import {
   PlusOutlined,
   EditOutlined,
   DeleteOutlined,
-  ImportOutlined,
   ExportOutlined,
 } from "@ant-design/icons";
+import FilesUpLoadModal from "../user/user.import";
+import BookDetails from "./book.detail";
+import CreateBookModal from "./book.create";
+import UpdateBookModal from "./book.update";
+import dayjs from "dayjs";
 import type { ActionType, ProColumns } from "@ant-design/pro-components";
 import { ProTable } from "@ant-design/pro-components";
 import { Button, Tag, Space, Popconfirm, message } from "antd";
@@ -12,11 +16,8 @@ import { Fragment, useRef, useState } from "react";
 import { deleteUsersApi, getBookApi } from "../services/api";
 import { dateRangeValidate } from "../services/helper";
 import { CSVLink } from "react-csv";
-import dayjs from "dayjs";
-import UpdateUserModal from "../user/user.update";
-import FilesUpLoadModal from "../user/user.import";
-import BookDetails from "./book.detail";
-import CreateBookModal from "./book.create";
+
+//////////////////////
 
 type TSearch = {
   mainText: string;
@@ -37,7 +38,7 @@ const TableBooks = () => {
   const [openCreateBook, setOpenCreateBook] = useState<boolean>(false);
 
   const [dataUpdate, setDataUpdate] = useState<IBookTable | null>(null);
-  const [openUpdateUser, setOpenUpdateUser] = useState<boolean>(false);
+  const [openUpdateBook, setOpenUpdateBook] = useState<boolean>(false);
 
   const [openUpload, setOpenUpload] = useState<boolean>(false);
   const [currentDataTable, setCurrentDataTable] = useState<IBookTable[]>([]);
@@ -132,19 +133,19 @@ const TableBooks = () => {
     {
       title: "Actions",
       key: "actions",
-      render: (_, record) => (
+      render: (dom, entity, index, action, schema) => (
         <Space>
           <Button
             type="link"
             icon={<EditOutlined />}
             onClick={() => {
-              setDataUpdate(record);
-              setOpenUpdateUser(true);
+              setDataUpdate(entity);
+              setOpenUpdateBook(true);
             }}
           />
           <Popconfirm
-            title="Are you sure to delete this user?"
-            onConfirm={() => handleDelete(record._id)}
+            title="Are you sure to delete this book?"
+            onConfirm={() => handleDelete(entity._id)}
             okText="Yes"
             cancelText="No"
           >
@@ -222,21 +223,10 @@ const TableBooks = () => {
 
           <Button
             key="button"
-            icon={<ImportOutlined />}
-            onClick={() => {
-              setOpenUpload(true);
-            }}
-            style={{ backgroundColor: "yellow" }}
-          >
-            Import
-          </Button>,
-
-          <Button
-            key="button"
             icon={<ExportOutlined />}
             style={{ backgroundColor: "green" }}
           >
-            <CSVLink data={currentDataTable} filename="export-user.csv">
+            <CSVLink data={currentDataTable} filename="export-books.csv">
               Export
             </CSVLink>
           </Button>,
@@ -253,11 +243,11 @@ const TableBooks = () => {
         setOpenCreateBook={setOpenCreateBook}
         refreshTable={refreshTable}
       />
-      <UpdateUserModal
+      <UpdateBookModal
         dataUpdate={dataUpdate}
         setDataUpdate={setDataUpdate}
-        openUpdateUser={openUpdateUser}
-        setOpenUpdateUser={setOpenUpdateUser}
+        openUpdateBook={openUpdateBook}
+        setOpenUpdateBook={setOpenUpdateBook}
         refreshTable={refreshTable}
       />
 
