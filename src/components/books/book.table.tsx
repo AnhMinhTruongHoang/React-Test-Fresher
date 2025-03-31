@@ -160,7 +160,7 @@ const TableBooks = () => {
           if (params.sold !== undefined) query += `&sold=${params.sold}`;
           if (params.createdAt) query += `&createdAt=${params.createdAt}`;
           if (params.category) query += `&category=${params.category}`;
-        
+
           const dateRange = dateRangeValidate(params.createdAtRange);
           if (dateRange) {
             query += `&createdAt[gte]=${dateRange[0]}&createdAt[lte]=${dateRange[1]}`;
