@@ -23,6 +23,8 @@ type TSearch = {
   email: string;
   createdAt: string;
   createdAtRange: string;
+  phone: string;
+  role: string;
 };
 
 const TableUser = () => {
@@ -164,24 +166,32 @@ const TableUser = () => {
         actionRef={actionRef}
         cardBordered
         request={async (params, sort, filter) => {
-          let query = `current=${params.current}&pageSize=${params.pageSize}`;
-          if (params.email) query += `&email=/${params.email}/i`;
-          if (params.fullName) query += `&fullName=/${params.fullName}/i`;
+          let query = new URLSearchParams();
 
-          const createDateRange = dateRangeValidate(params.createdAtRange);
-          if (createDateRange) {
-            query += `&createdAt[gte]=${createDateRange[0]}&createdAt[lte]=${createDateRange[1]}`;
-          }
+          query.append("current", params.current?.toString() || "1");
+          query.append("pageSize", params.pageSize?.toString() || "5");
+
+          if (params.email)
+            query.append("email", `/${encodeURIComponent(params.email)}/i`);
+          if (params.fullName)
+            query.append(
+              "fullName",
+              `/${encodeURIComponent(params.fullName)}/i`
+            );
+          if (params.phone)
+            query.append("phone", `/${encodeURIComponent(params.phone)}/i`);
+          if (params.role)
+            query.append("role", `/${encodeURIComponent(params.role)}/i`);
 
           if (!sort || Object.keys(sort).length === 0) {
-            query += "&sort=-createdAt"; // soft logic
+            query.append("sort", "-createdAt");
           } else {
-            Object.keys(sort).forEach((key) => {
-              query += `&sort=${sort[key] === "ascend" ? key : "-" + key}`;
+            Object.entries(sort).forEach(([key, value]) => {
+              query.append("sort", value === "ascend" ? key : `-${key}`);
             });
           }
 
-          const res = await getUsersApi(query);
+          const res = await getUsersApi(query.toString());
           if (res.data) {
             setMeta(res.data.meta);
             setCurrentDataTable(res.data?.result ?? []);
