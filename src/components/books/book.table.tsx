@@ -12,6 +12,10 @@ import { Fragment, useRef, useState } from "react";
 import { deleteBookApi, getBookApi } from "../services/api";
 import { dateRangeValidate } from "../services/helper";
 import { CSVLink } from "react-csv";
+import FilesUpLoadModal from "../user/user.import";
+import UpdateBookModal from "./book.update";
+import CreateBookModal from "./book.create";
+import BookDetails from "./book.detail";
 
 //////////////////////
 
@@ -190,6 +194,24 @@ const TableBooks = () => {
             </CSVLink>
           </Button>,
         ]}
+      />
+      <BookDetails
+        openViewData={openViewData}
+        setOpenViewData={setOpenViewData}
+        dataView={dataView}
+        setDataView={setDataView}
+      />
+      <CreateBookModal
+        openCreateBook={openCreateBook}
+        setOpenCreateBook={setOpenCreateBook}
+        refreshTable={refreshTable}
+      />
+      <UpdateBookModal
+        dataUpdate={dataUpdate}
+        setDataUpdate={setDataUpdate}
+        openUpdateBook={openUpdateBook}
+        setOpenUpdateBook={setOpenUpdateBook}
+        refreshTable={refreshTable}
       />
     </Fragment>
   );
