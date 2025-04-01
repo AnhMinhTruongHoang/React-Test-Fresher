@@ -4,10 +4,6 @@ import {
   DeleteOutlined,
   ExportOutlined,
 } from "@ant-design/icons";
-import FilesUpLoadModal from "../user/user.import";
-import BookDetails from "./book.detail";
-import CreateBookModal from "./book.create";
-import UpdateBookModal from "./book.update";
 import dayjs from "dayjs";
 import type { ActionType, ProColumns } from "@ant-design/pro-components";
 import { ProTable } from "@ant-design/pro-components";
@@ -20,26 +16,23 @@ import { CSVLink } from "react-csv";
 //////////////////////
 
 type TSearch = {
-  mainText: string;
-  author: string;
-  sold: number;
-  createdAt: string;
-  createdAtRange: string;
+  mainText?: string;
+  author?: string;
+  category?: string;
+  price?: number;
+  sold?: number;
+  createdAt?: string;
+  createdAtRange?: string;
 };
 
 const TableBooks = () => {
   const actionRef = useRef<ActionType>();
   const [meta, setMeta] = useState({ current: 1, pageSize: 5, total: 0 });
-
   const [openViewData, setOpenViewData] = useState<boolean>(false);
-
   const [dataView, setDataView] = useState<IBookTable | null>(null);
-
   const [openCreateBook, setOpenCreateBook] = useState<boolean>(false);
-
   const [dataUpdate, setDataUpdate] = useState<IBookTable | null>(null);
   const [openUpdateBook, setOpenUpdateBook] = useState<boolean>(false);
-
   const [openUpload, setOpenUpload] = useState<boolean>(false);
   const [currentDataTable, setCurrentDataTable] = useState<IBookTable[]>([]);
 
@@ -49,63 +42,42 @@ const TableBooks = () => {
 
   const handleDelete = async (id: string) => {
     const res = await deleteBookApi(id);
-
     if (res.data) {
       message.success(`Deleted ID: ${id}`);
       refreshTable();
     } else {
       message.error("Delete Failed");
     }
-  }; /////////delete
+  };
 
   const columns: ProColumns<IBookTable>[] = [
-    {
-      dataIndex: "index",
-      valueType: "indexBorder",
-      width: 48,
-    },
-
+    { dataIndex: "index", valueType: "indexBorder", width: 48 },
     {
       title: "Id",
       dataIndex: "_id",
       hideInSearch: true,
-      render(dom, entity, index, action, schema) {
-        return (
-          <a
-            onClick={() => {
-              setDataView(entity);
-              setOpenViewData(true);
-            }}
-            href="#"
-          >
-            {entity._id}
-          </a>
-        );
-      },
+      render: (_, entity) => (
+        <a
+          onClick={() => {
+            setDataView(entity);
+            setOpenViewData(true);
+          }}
+          href="#"
+        >
+          {entity._id}
+        </a>
+      ),
     },
-
-    {
-      title: "Title",
-      dataIndex: "mainText",
-      sorter: true,
-    },
+    { title: "Title", dataIndex: "mainText", sorter: true },
     {
       title: "Category",
       dataIndex: "category",
-      copyable: true,
       sorter: true,
       search: true,
+      copyable: true,
     },
-    {
-      title: "Author",
-      dataIndex: "author",
-      sorter: true,
-    },
-    {
-      title: "Price",
-      dataIndex: "price",
-      sorter: true,
-    },
+    { title: "Author", dataIndex: "author", sorter: true, search: true },
+    { title: "Price", dataIndex: "price", sorter: true, valueType: "money" },
     {
       title: "Sold",
       dataIndex: "sold",
@@ -116,25 +88,20 @@ const TableBooks = () => {
         </Tag>
       ),
     },
-
     {
       title: "Created At",
       dataIndex: "createdAt",
       valueType: "date",
       sorter: true,
-      render(dom, entity, index, action, schema) {
-        return <>{dayjs(entity.createdAt).format("DD-MM-YYYY")}</>;
-      },
+      render: (_, entity) => (
+        <>{dayjs(entity.createdAt).format("DD-MM-YYYY")}</>
+      ),
     },
-    {
-      title: "Updated At",
-      dataIndex: "updatedAt",
-      sorter: true,
-    },
+    { title: "Updated At", dataIndex: "updatedAt", sorter: true },
     {
       title: "Actions",
       key: "actions",
-      render: (dom, entity, index, action, schema) => (
+      render: (_, entity) => (
         <Space>
           <Button
             type="link"
@@ -163,23 +130,22 @@ const TableBooks = () => {
         columns={columns}
         actionRef={actionRef}
         cardBordered
-        request={async (params, sort, filter) => {
+        request={async (params, sort) => {
           let query = `current=${params.current}&pageSize=${params.pageSize}`;
-          if (params.mainText) query += `&email=/${params.mainText}/i`;
-          if (params.author) query += `&fullName=/${params.author}/i`;
+          if (params.mainText) query += `&mainText=/${params.mainText}/i`;
+          if (params.author) query += `&author=/${params.author}/i`;
+          if (params.category) query += `&category=/${params.category}/i`;
+          if (params.price) query += `&price=${params.price}`;
+          if (params.sold !== undefined) query += `&sold=${params.sold}`;
 
           const createDateRange = dateRangeValidate(params.createdAtRange);
           if (createDateRange) {
             query += `&createdAt[gte]=${createDateRange[0]}&createdAt[lte]=${createDateRange[1]}`;
           }
 
-          if (!sort || Object.keys(sort).length === 0) {
-            query += "&sort=-createdAt"; // soft logic
-          } else {
-            Object.keys(sort).forEach((key) => {
-              query += `&sort=${sort[key] === "ascend" ? key : "-" + key}`;
-            });
-          }
+          Object.keys(sort).forEach((key) => {
+            query += `&sort=${sort[key] === "ascend" ? key : "-" + key}`;
+          });
 
           const res = await getBookApi(query);
           if (res.data) {
@@ -203,25 +169,17 @@ const TableBooks = () => {
             setMeta((prev) => ({ ...prev, current: page, pageSize }));
             actionRef.current?.reload();
           },
-          showTotal: (total, range) => (
-            <div>
-              {range[0]}-{range[1]} of {total} rows
-            </div>
-          ),
         }}
         headerTitle="Books Table"
         toolBarRender={() => [
           <Button
             key="button"
             icon={<PlusOutlined />}
-            onClick={() => {
-              setOpenCreateBook(true);
-            }}
+            onClick={() => setOpenCreateBook(true)}
             type="primary"
           >
             Add New
           </Button>,
-
           <Button
             key="button"
             icon={<ExportOutlined />}
@@ -232,30 +190,6 @@ const TableBooks = () => {
             </CSVLink>
           </Button>,
         ]}
-      />
-      <BookDetails
-        openViewData={openViewData}
-        setOpenViewData={setOpenViewData}
-        dataView={dataView}
-        setDataView={setDataView}
-      />
-      <CreateBookModal
-        openCreateBook={openCreateBook}
-        setOpenCreateBook={setOpenCreateBook}
-        refreshTable={refreshTable}
-      />
-      <UpdateBookModal
-        dataUpdate={dataUpdate}
-        setDataUpdate={setDataUpdate}
-        openUpdateBook={openUpdateBook}
-        setOpenUpdateBook={setOpenUpdateBook}
-        refreshTable={refreshTable}
-      />
-
-      <FilesUpLoadModal
-        openUpload={openUpload}
-        setOpenUpload={setOpenUpload}
-        refreshTable={refreshTable}
       />
     </Fragment>
   );

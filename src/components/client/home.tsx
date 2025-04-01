@@ -1,5 +1,11 @@
-import { FilterTwoTone, ReloadOutlined } from "@ant-design/icons";
 import {
+  ArrowDownOutlined,
+  ArrowUpOutlined,
+  FilterTwoTone,
+  ReloadOutlined,
+} from "@ant-design/icons";
+import {
+  Button,
   Checkbox,
   Col,
   Divider,
@@ -13,9 +19,8 @@ import {
 } from "antd";
 import { FormProps } from "antd/lib";
 import "../../styles/homePage.scss";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import { getBookApi, getCategoryApi } from "../services/api";
-import { ProColumns } from "@ant-design/pro-components";
 
 type FieldType = {
   mainText?: string;
@@ -24,13 +29,17 @@ type FieldType = {
   createdAt?: string;
   createdAtRange?: string;
   category: any;
+  range?: {
+    from: number;
+    to: number;
+  };
 };
 
 const HomePage = () => {
   const [form] = Form.useForm();
   const [listBook, SetListBook] = useState<IBookTable[]>([]);
   const [current, setCurrent] = useState<number>(1);
-  const [pageSize, setPageSize] = useState<number>(5);
+  const [pageSize, setPageSize] = useState<number>(6);
   const [total, setTotal] = useState<number>(0);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [filter, setFilter] = useState<string>("");
@@ -95,24 +104,45 @@ const HomePage = () => {
 
   const handleChangeFilter = (changedValues: any, values: any) => {
     console.log("Filter changed:", changedValues, values);
+
+    if (changedValues.category) {
+      const cate = values.category;
+      if (cate && cate.length > 0) {
+        const f = cate.join(",");
+        setFilter(`category=${f}`);
+      } else {
+        setFilter("");
+      }
+    }
   };
 
   const onFinish: FormProps<FieldType>["onFinish"] = async (values) => {
-    console.log("Form submitted:", values);
+    let f = "";
+    const from = values?.range?.from ?? 0;
+    const to = values?.range?.to ?? Number.MAX_SAFE_INTEGER;
+
+    if (from >= 0 && to >= 0) {
+      f = `price>=${from}&price<=${to}`;
+    }
+    if (values?.category?.length) {
+      const cate = values?.category?.join(",");
+      f += `&category=${cate}`;
+    }
+    setFilter(f);
   };
 
   const onChange = (key: string) => {
     console.log("Tab changed:", key);
   };
 
-  // const refreshTable = () => {
-  //   actionRef.current?.reload();
-  // };
+  /////////////
 
   const items = [
-    { key: "1", label: "Category 1", children: <></> },
-    { key: "2", label: "Category 2", children: <></> },
-    { key: "3", label: "Category 3", children: <></> },
+    { key: "sort=-updatedAt", label: "Newest", children: <></> },
+    { key: "sort=mainText", label: "A-Z", children: <></> },
+    { key: "sort=-sold", label: "Top Seller", children: <></> },
+    { key: "sort=-price", label: <ArrowUpOutlined />, children: <></> },
+    { key: "sort=price", label: <ArrowDownOutlined />, children: <></> },
   ];
 
   return (
@@ -123,7 +153,13 @@ const HomePage = () => {
             <span>
               <FilterTwoTone /> Filters
             </span>
-            <ReloadOutlined title="Reset" onClick={() => form.resetFields()} />
+            <ReloadOutlined
+              title="Reset"
+              onClick={() => {
+                form.resetFields();
+                setFilter("");
+              }}
+            />
           </div>
 
           <Form
@@ -156,10 +192,19 @@ const HomePage = () => {
                 <Form.Item name={["range", "from"]}>
                   <InputNumber min={0} placeholder="From" />
                 </Form.Item>
-                <span>-</span>
+                <span> - </span>
                 <Form.Item name={["range", "to"]}>
                   <InputNumber min={0} placeholder="To" />
                 </Form.Item>
+              </div>
+              <div>
+                <Button
+                  onClick={() => form.submit()}
+                  style={{ width: "100%" }}
+                  type="primary"
+                >
+                  Apply
+                </Button>
               </div>
             </Form.Item>
 
@@ -171,7 +216,13 @@ const HomePage = () => {
 
         {/* Content */}
         <Col md={18} sm={24} className="content">
-          <Tabs defaultActiveKey="1" items={items} onChange={onChange} />
+          <Tabs
+            defaultActiveKey="1"
+            items={items}
+            onChange={(value) => {
+              setSortQuery(value);
+            }}
+          />
 
           <Row className="customize-row">
             {listBook?.map((item, index) => {
