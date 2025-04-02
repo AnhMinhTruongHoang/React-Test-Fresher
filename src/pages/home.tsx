@@ -22,6 +22,7 @@ import "../styles/homePage.scss";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getBookApi, getCategoryApi } from "@/components/services/api";
+import MobileFilter from "./mobile.fillter";
 
 type FieldType = {
   mainText?: string;
@@ -44,6 +45,7 @@ const HomePage = () => {
   const [pageSize, setPageSize] = useState<number>(6);
   const [total, setTotal] = useState<number>(0);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isOpenFillter, setIsOpenFillter] = useState<boolean>(false);
   const [filter, setFilter] = useState<string>("");
   const [sortQuery, setSortQuery] = useState<string>("sort=-sold");
   const [categories, setCategories] = useState<
@@ -148,140 +150,162 @@ const HomePage = () => {
   ];
 
   return (
-    <div className="homepage-container">
-      <Row gutter={[20, 20]}>
-        <Col md={6} sm={24} className="sidebar">
-          <div className="sidebar-header">
-            <span>
-              <FilterTwoTone /> Filters
-            </span>
-            <ReloadOutlined
-              title="Reset"
-              onClick={() => {
-                form.resetFields();
-                setFilter("");
+    <>
+      <div className="homepage-container">
+        <Row gutter={[20, 20]}>
+          <Col md={6} sm={24} className="sidebar">
+            <div className="sidebar-header">
+              <span>
+                <FilterTwoTone /> Filters
+              </span>
+              <ReloadOutlined
+                title="Reset"
+                onClick={() => {
+                  form.resetFields();
+                  setFilter("");
+                }}
+              />
+            </div>
+
+            <Form
+              form={form}
+              onFinish={onFinish}
+              onValuesChange={(changedValues, values) =>
+                handleChangeFilter(changedValues, values)
+              }
+            >
+              <Form.Item
+                name="category"
+                label="Category"
+                labelCol={{ span: 24 }}
+              >
+                <Checkbox.Group>
+                  <Row>
+                    <Col span={24} style={{ display: "flex" }}>
+                      <Space direction="vertical">
+                        {categories &&
+                          Object.keys(categories).map((key) => (
+                            <Checkbox key={key} value={key}>
+                              {categories[key].text}
+                            </Checkbox>
+                          ))}
+                      </Space>
+                    </Col>
+                  </Row>
+                </Checkbox.Group>
+              </Form.Item>
+              <Divider />
+
+              <Form.Item label="Price Range" labelCol={{ span: 24 }}>
+                <div className="price-range">
+                  <Form.Item name={["range", "from"]}>
+                    <InputNumber min={0} placeholder="From" />
+                  </Form.Item>
+                  <span> - </span>
+                  <Form.Item name={["range", "to"]}>
+                    <InputNumber min={0} placeholder="To" />
+                  </Form.Item>
+                </div>
+                <div>
+                  <Button
+                    onClick={() => form.submit()}
+                    style={{ width: "100%" }}
+                    type="primary"
+                  >
+                    Apply
+                  </Button>
+                </div>
+              </Form.Item>
+
+              <Form.Item label="Rating">
+                <Rate allowHalf defaultValue={2.5} />
+              </Form.Item>
+            </Form>
+          </Col>
+
+          {/* Content */}
+          <Col md={18} sm={24} className="content">
+            <Tabs
+              defaultActiveKey="1"
+              items={items}
+              onChange={(value) => {
+                setSortQuery(value);
               }}
             />
-          </div>
-
-          <Form
-            form={form}
-            onFinish={onFinish}
-            onValuesChange={(changedValues, values) =>
-              handleChangeFilter(changedValues, values)
-            }
-          >
-            <Form.Item name="category" label="Category" labelCol={{ span: 24 }}>
-              <Checkbox.Group>
-                <Row>
-                  <Col span={24} style={{ display: "flex" }}>
-                    <Space direction="vertical">
-                      {categories &&
-                        Object.keys(categories).map((key) => (
-                          <Checkbox key={key} value={key}>
-                            {categories[key].text}
-                          </Checkbox>
-                        ))}
-                    </Space>
-                  </Col>
-                </Row>
-              </Checkbox.Group>
-            </Form.Item>
-            <Divider />
-
-            <Form.Item label="Price Range" labelCol={{ span: 24 }}>
-              <div className="price-range">
-                <Form.Item name={["range", "from"]}>
-                  <InputNumber min={0} placeholder="From" />
-                </Form.Item>
-                <span> - </span>
-                <Form.Item name={["range", "to"]}>
-                  <InputNumber min={0} placeholder="To" />
-                </Form.Item>
+            <Col xs={24} md={0}>
+              <div style={{ marginBottom: 20 }}>
+                <span onClick={() => setIsOpenFillter(true)}>
+                  <FilterTwoTone />
+                  <span style={{ fontWeight: 500 }}>Lọc</span>
+                </span>
               </div>
-              <div>
-                <Button
-                  onClick={() => form.submit()}
-                  style={{ width: "100%" }}
-                  type="primary"
-                >
-                  Apply
-                </Button>
-              </div>
-            </Form.Item>
+            </Col>
 
-            <Form.Item label="Rating">
-              <Rate allowHalf defaultValue={2.5} />
-            </Form.Item>
-          </Form>
-        </Col>
+            <Row className="customize-row">
+              {listBook?.map((item, index) => {
+                return (
+                  <div
+                    key={`book-${index}`}
+                    className="column"
+                    onClick={() => navigate(`/book/${item._id}`)}
+                  >
+                    <div className="wrapper">
+                      <div className="thumbnail">
+                        <img
+                          src={`${
+                            import.meta.env.VITE_BACKEND_URL
+                          }/images/book/${item.thumbnail}`}
+                          alt="Book Cover"
+                        />
+                      </div>
 
-        {/* Content */}
-        <Col md={18} sm={24} className="content">
-          <Tabs
-            defaultActiveKey="1"
-            items={items}
-            onChange={(value) => {
-              setSortQuery(value);
-            }}
-          />
+                      <div className="mainText">
+                        <h3>{item.mainText}</h3>
+                      </div>
+                      <div className="mainText">
+                        <i>( {item.author} )</i>
+                      </div>
 
-          <Row className="customize-row">
-            {listBook?.map((item, index) => {
-              return (
-                <div
-                  key={`book-${index}`}
-                  className="column"
-                  onClick={() => navigate(`/book/${item._id}`)}
-                >
-                  <div className="wrapper">
-                    <div className="thumbnail">
-                      <img
-                        src={`${import.meta.env.VITE_BACKEND_URL}/images/book/${
-                          item.thumbnail
-                        }`}
-                        alt="Book Cover"
-                      />
-                    </div>
+                      <div className="price" style={{ marginTop: "5px" }}>
+                        {new Intl.NumberFormat("en-US", {
+                          style: "currency",
+                          currency: "VND",
+                        }).format(item.price)}
+                      </div>
 
-                    <div className="mainText">
-                      <h3>{item.mainText}</h3>
-                    </div>
-                    <div className="mainText">
-                      <i>( {item.author} )</i>
-                    </div>
-
-                    <div className="price" style={{ marginTop: "5px" }}>
-                      {new Intl.NumberFormat("en-US", {
-                        style: "currency",
-                        currency: "VND",
-                      }).format(item.price)}
-                    </div>
-
-                    <div className="rating">
-                      <Rate value={5} disabled style={{ marginTop: "5px" }} />
-                      <span>{item.sold}</span>
+                      <div className="rating">
+                        <Rate value={5} disabled style={{ marginTop: "5px" }} />
+                        <span>{item.sold}</span>
+                      </div>
                     </div>
                   </div>
-                </div>
-              );
-            })}
-          </Row>
-          <Divider />
-          <Row className="pagination-row">
-            <Pagination
-              current={current}
-              total={total}
-              pageSize={pageSize}
-              responsive
-              onChange={(p, s) =>
-                handleOnchangePage({ current: p, pageSize: s })
-              }
-            />
-          </Row>
-        </Col>
-      </Row>
-    </div>
+                );
+              })}
+            </Row>
+            <Divider />
+            <Row className="pagination-row">
+              <Pagination
+                current={current}
+                total={total}
+                pageSize={pageSize}
+                responsive
+                onChange={(p, s) =>
+                  handleOnchangePage({ current: p, pageSize: s })
+                }
+              />
+            </Row>
+          </Col>
+        </Row>
+
+        <MobileFilter
+          isOpenFillter={isOpenFillter}
+          setIsOpenFillter={setIsOpenFillter}
+          handleChangeFilter={handleChangeFilter}
+          categories={categories}
+          onFinish={onFinish}
+        />
+      </div>
+    </>
   );
 };
 
