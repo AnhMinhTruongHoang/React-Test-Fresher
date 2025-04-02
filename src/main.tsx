@@ -3,9 +3,6 @@ import { createRoot } from "react-dom/client";
 import Layout from "@/layout";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { App, ConfigProvider } from "antd";
-import HomePage from "./components/client/home";
-import BookPage from "./components/client/book";
-import AboutPage from "./components/client/about";
 import ProtectedRound from "./authentication/auth";
 import LayoutAdmin from "./components/layout/layout.admin";
 import DashBoardPage from "./components/admin/dashboard";
@@ -16,6 +13,9 @@ import LoginPage from "./components/auth/login";
 import RegisterPage from "./components/auth/register";
 import { AppProvider } from "./context/app.context";
 import enUS from "antd/locale/en_US";
+import AboutPage from "./pages/about";
+import HomePage from "./pages/home";
+import BookPage from "./components/client/Products/product";
 
 const router = createBrowserRouter([
   {
@@ -27,7 +27,7 @@ const router = createBrowserRouter([
         element: <HomePage />,
       },
       {
-        path: "/book",
+        path: "/book/:id",
         element: <BookPage />,
       },
       {

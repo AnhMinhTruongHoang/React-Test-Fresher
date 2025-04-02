@@ -12,7 +12,6 @@ import { Fragment, useRef, useState } from "react";
 import { deleteBookApi, getBookApi } from "../services/api";
 import { dateRangeValidate } from "../services/helper";
 import { CSVLink } from "react-csv";
-import FilesUpLoadModal from "../user/user.import";
 import UpdateBookModal from "./book.update";
 import CreateBookModal from "./book.create";
 import BookDetails from "./book.detail";
@@ -37,7 +36,6 @@ const TableBooks = () => {
   const [openCreateBook, setOpenCreateBook] = useState<boolean>(false);
   const [dataUpdate, setDataUpdate] = useState<IBookTable | null>(null);
   const [openUpdateBook, setOpenUpdateBook] = useState<boolean>(false);
-  const [openUpload, setOpenUpload] = useState<boolean>(false);
   const [currentDataTable, setCurrentDataTable] = useState<IBookTable[]>([]);
 
   const refreshTable = () => {

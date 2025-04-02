@@ -10,7 +10,6 @@ import { ProTable } from "@ant-design/pro-components";
 import { Button, Tag, Space, Popconfirm, message } from "antd";
 import { Fragment, useRef, useState } from "react";
 import { deleteUsersApi, getUsersApi } from "../services/api";
-import { dateRangeValidate } from "../services/helper";
 import UserDetails from "./user.view";
 import CreateUserModal from "./user.create";
 import FilesUpLoadModal from "./user.import";

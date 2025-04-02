@@ -18,9 +18,10 @@ import {
   Tabs,
 } from "antd";
 import { FormProps } from "antd/lib";
-import "../../styles/homePage.scss";
+import "../styles/homePage.scss";
 import { useEffect, useState } from "react";
-import { getBookApi, getCategoryApi } from "../services/api";
+import { useNavigate } from "react-router-dom";
+import { getBookApi, getCategoryApi } from "@/components/services/api";
 
 type FieldType = {
   mainText?: string;
@@ -37,6 +38,7 @@ type FieldType = {
 
 const HomePage = () => {
   const [form] = Form.useForm();
+  const navigate = useNavigate();
   const [listBook, SetListBook] = useState<IBookTable[]>([]);
   const [current, setCurrent] = useState<number>(1);
   const [pageSize, setPageSize] = useState<number>(6);
@@ -227,7 +229,11 @@ const HomePage = () => {
           <Row className="customize-row">
             {listBook?.map((item, index) => {
               return (
-                <div key={index} className="column">
+                <div
+                  key={`book-${index}`}
+                  className="column"
+                  onClick={() => navigate(`/book/${item._id}`)}
+                >
                   <div className="wrapper">
                     <div className="thumbnail">
                       <img
