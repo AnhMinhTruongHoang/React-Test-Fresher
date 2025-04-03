@@ -16,6 +16,9 @@ import enUS from "antd/locale/en_US";
 import AboutPage from "./pages/about";
 import HomePage from "./pages/home";
 import BookPage from "./components/client/Products/product";
+import OrderPageStep from "./components/client/order/checkout.step";
+import PaymentPage from "./components/client/order/payment";
+import OrderDetail from "./components/client/order/orderPage";
 
 const router = createBrowserRouter([
   {
@@ -38,7 +41,23 @@ const router = createBrowserRouter([
         path: "/checkout",
         element: (
           <ProtectedRound>
-            <div>checkout page</div>
+            <PaymentPage />
+          </ProtectedRound>
+        ),
+      },
+      {
+        path: "/orderDetail",
+        element: (
+          <ProtectedRound>
+            <OrderDetail />
+          </ProtectedRound>
+        ),
+      },
+      {
+        path: "/OrderPageStep",
+        element: (
+          <ProtectedRound>
+            <OrderPageStep />
           </ProtectedRound>
         ),
       },
@@ -72,6 +91,7 @@ const router = createBrowserRouter([
           </ProtectedRound>
         ),
       },
+
       {
         path: "user",
         element: (
