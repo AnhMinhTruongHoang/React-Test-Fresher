@@ -2,7 +2,7 @@ import { useState } from "react";
 import { FaReact } from "react-icons/fa";
 import { FiShoppingCart } from "react-icons/fi";
 import { VscSearchFuzzy } from "react-icons/vsc";
-import { Divider, Badge, Drawer, Avatar, Popover } from "antd";
+import { Divider, Badge, Drawer, Avatar, Popover, Empty } from "antd";
 import { Dropdown, Space } from "antd";
 import { useNavigate } from "react-router";
 import "./app.header.scss";
@@ -13,7 +13,7 @@ import { logoutApi } from "../services/api";
 const AppHeader = (props: any) => {
   const [openDrawer, setOpenDrawer] = useState(false);
 
-  const { isAuthenticated, user, setUser, setIsAuthenticated } =
+  const { isAuthenticated, user, setUser, setIsAuthenticated, carts } =
     useCurrentApp();
 
   const navigate = useNavigate();
@@ -31,19 +31,19 @@ const AppHeader = (props: any) => {
     {
       label: (
         <label style={{ cursor: "pointer" }} onClick={() => alert("me")}>
-          Quản lý tài khoản
+          Account Management
         </label>
       ),
       key: "account",
     },
     {
-      label: <Link to="/history">Lịch sử mua hàng</Link>,
+      label: <Link to="/history">Purchase History</Link>,
       key: "history",
     },
     {
       label: (
         <label style={{ cursor: "pointer" }} onClick={() => handleLogout()}>
-          Đăng xuất
+          Logout
         </label>
       ),
       key: "logout",
@@ -51,7 +51,7 @@ const AppHeader = (props: any) => {
   ];
   if (user?.role === "ADMIN") {
     items.unshift({
-      label: <Link to="/admin">Trang quản trị</Link>,
+      label: <Link to="/admin">Admin Panel</Link>,
       key: "admin",
     });
   }
@@ -63,28 +63,34 @@ const AppHeader = (props: any) => {
   const contentPopover = () => {
     return (
       <div className="pop-cart-body">
-        {/* <div className='pop-cart-content'>
-                    {carts?.map((book, index) => {
-                        return (
-                            <div className='book' key={`book-${index}`}>
-                                <img src={`${import.meta.env.VITE_BACKEND_URL}/images/book/${book?.detail?.thumbnail}`} />
-                                <div>{book?.detail?.mainText}</div>
-                                <div className='price'>
-                                    {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(book?.detail?.price ?? 0)}
-                                </div>
-                            </div>
-                        )
-                    })}
+        <div className="pop-cart-content">
+          {carts?.map((book, index) => {
+            return (
+              <div className="book" key={`book-${index}`}>
+                <img
+                  alt="no image"
+                  src={`${import.meta.env.VITE_BACKEND_URL}/images/book/${
+                    book?.detail?.thumbnail
+                  }`}
+                />
+                <div>{book?.detail?.mainText} :</div>
+                <div className="price">
+                  {new Intl.NumberFormat("vi-VN", {
+                    style: "currency",
+                    currency: "VND",
+                  }).format(book?.detail?.price ?? 0)}
                 </div>
-                {carts.length > 0 ?
-                    <div className='pop-cart-footer'>
-                        <button onClick={() => navigate('/order')}>Xem giỏ hàng</button>
-                    </div>
-                    :
-                    <Empty
-                        description="Không có sản phẩm trong giỏ hàng"
-                    />
-                } */}
+              </div>
+            );
+          })}
+        </div>
+        {carts.length > 0 ? (
+          <div className="pop-cart-footer" style={{ justifyContent: "center" }}>
+            <button onClick={() => navigate("/order")}>View Cart</button>
+          </div>
+        ) : (
+          <Empty description="No products in cart" />
+        )}
       </div>
     );
   };
@@ -112,7 +118,7 @@ const AppHeader = (props: any) => {
               <input
                 className="input-search"
                 type={"text"}
-                placeholder="Bạn tìm gì hôm nay"
+                placeholder="What are you looking for today?"
                 // value={props.searchTerm}
                 // onChange={(e) => props.setSearchTerm(e.target.value)}
               />
@@ -125,16 +131,10 @@ const AppHeader = (props: any) => {
                   className="popover-carts"
                   placement="topRight"
                   rootClassName="popover-carts"
-                  title={"Sản phẩm mới thêm"}
                   content={contentPopover}
                   arrow={true}
                 >
-                  <Badge
-                    // count={carts?.length ?? 0}
-                    count={10}
-                    size={"small"}
-                    showZero
-                  >
+                  <Badge count={carts?.length ?? 0} size={"small"} showZero>
                     <FiShoppingCart className="icon-cart" />
                   </Badge>
                 </Popover>
@@ -144,7 +144,7 @@ const AppHeader = (props: any) => {
               </li>
               <li className="navigation__item mobile">
                 {!isAuthenticated ? (
-                  <span onClick={() => navigate("/login")}> Tài Khoản</span>
+                  <span onClick={() => navigate("/login")}> Account</span>
                 ) : (
                   <Dropdown menu={{ items }} trigger={["click"]}>
                     <Space>
@@ -159,15 +159,15 @@ const AppHeader = (props: any) => {
         </header>
       </div>
       <Drawer
-        title="Menu chức năng"
+        title="Function Menu"
         placement="left"
         onClose={() => setOpenDrawer(false)}
         open={openDrawer}
       >
-        <p>Quản lý tài khoản</p>
+        <p>Account Management</p>
         <Divider />
 
-        <p onClick={() => handleLogout()}>Đăng xuất</p>
+        <p onClick={() => handleLogout()}>Logout</p>
         <Divider />
       </Drawer>
     </>

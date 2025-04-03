@@ -1,22 +1,26 @@
-import { Row, Col, Rate, Divider, Button, Input } from "antd";
+import { Row, Col, Rate, Divider, Button, Input, message } from "antd";
 import ImageGallery from "react-image-gallery";
 import { useEffect, useRef, useState } from "react";
 import { MinusOutlined, PlusOutlined } from "@ant-design/icons";
 import { BsCartPlus } from "react-icons/bs";
 import "styles/book.scss";
 import ModalGallery from "./modal.gallery";
+import { useCurrentApp } from "@/context/app.context";
 
 interface IProps {
   currentBook: IBookTable | null;
 }
 
+type UserAction = "MINUS" | "PLUS";
+
 interface IProps {}
 const BookDetail = (props: IProps) => {
   const { currentBook } = props;
-
   const [isOpenModalGallery, setIsOpenModalGallery] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
   const refGallery = useRef<ImageGallery>(null);
+  const [currentBookQuantity, setCurrentBookQuantity] = useState<number>(1);
+  const { carts, setCarts } = useCurrentApp();
   const [imageGallery, setImageGallery] = useState<
     {
       original: string;
@@ -61,6 +65,70 @@ const BookDetail = (props: IProps) => {
       setImageGallery(images);
     }
   }, [currentBook]);
+
+  ///////////////// add , minus button
+
+  const handleChangeButton = (type: UserAction) => {
+    if (type === "MINUS") {
+      if (currentBookQuantity - 1 <= 0) return;
+      setCurrentBookQuantity(currentBookQuantity - 1);
+    }
+    if (type === "PLUS" && currentBook) {
+      if (currentBookQuantity === +currentBook.quantity) return;
+      setCurrentBookQuantity(currentBookQuantity + 1);
+    }
+  };
+
+  const handleChangeInput = (value: string) => {
+    if (!isNaN(+value)) {
+      if (+value > 0 && currentBook && +value < +currentBook.quantity) {
+        setCurrentBookQuantity(+value);
+      }
+    }
+  };
+  //////////////////////// add to cart
+
+  const handleAddToCart = () => {
+    //update localStorage
+    const cartStorage = localStorage.getItem("carts");
+    if (cartStorage && currentBook) {
+      //update
+      const carts = JSON.parse(cartStorage) as ICart[];
+
+      //check exist
+      let isExistIndex = carts.findIndex((c) => c._id === currentBook?._id);
+      if (isExistIndex > -1) {
+        carts[isExistIndex].quantity =
+          carts[isExistIndex].quantity + currentBookQuantity;
+      } else {
+        carts.push({
+          quantity: currentBookQuantity,
+          _id: currentBook._id,
+          detail: currentBook,
+        });
+      }
+
+      localStorage.setItem("carts", JSON.stringify(carts));
+
+      //sync React Context
+      setCarts(carts);
+    } else {
+      //create
+      const data = [
+        {
+          _id: currentBook?._id!,
+          quantity: currentBookQuantity,
+          detail: currentBook!,
+        },
+      ];
+      localStorage.setItem("carts", JSON.stringify(data));
+
+      //sync React Context
+      setCarts(data);
+    }
+    message.success("Add Product Success !");
+  };
+  ///////////////////////////
 
   const handleOnClickImage = () => {
     //get current index onClick
@@ -145,17 +213,22 @@ const BookDetail = (props: IProps) => {
                 <div className="quantity">
                   <span className="left">Quantity</span>
                   <span className="right">
-                    <Button>
+                    <Button onClick={() => handleChangeButton("MINUS")}>
                       <MinusOutlined />
                     </Button>
-                    <Input defaultValue={1} />
-                    <Button>
+                    <Input
+                      onChange={(event) =>
+                        handleChangeInput(event.target.value)
+                      }
+                      value={currentBookQuantity}
+                    />
+                    <Button onClick={() => handleChangeButton("PLUS")}>
                       <PlusOutlined />
                     </Button>
                   </span>
                 </div>
                 <div className="buy">
-                  <button className="cart">
+                  <button className="cart" onClick={() => handleAddToCart()}>
                     <BsCartPlus className="icon-cart" />
                     <span>Add to Cart</span>
                   </button>
