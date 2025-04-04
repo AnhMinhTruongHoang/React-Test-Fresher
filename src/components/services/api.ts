@@ -172,3 +172,23 @@ export const getBookByIdApi = (id: string) => {
     },
   });
 };
+/////////////////////// order
+export const createOrderApi = (
+  name: string,
+  address: string,
+  phone: string,
+  totalPrice: number,
+  type: string,
+  detail: any
+) => {
+  const urlBackend = "/api/v1/order";
+
+  return axios.post<IBackendRes<IBookTable>>(urlBackend, {
+    name,
+    address,
+    phone,
+    totalPrice,
+    type,
+    detail,
+  });
+};

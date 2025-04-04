@@ -1,28 +1,44 @@
-import {
-  Button,
-  Col,
-  Divider,
-  Form,
-  Input,
-  InputNumber,
-  Radio,
-  Row,
-} from "antd";
+import { App, Button, Col, Divider, Form, Radio, Row, Space } from "antd";
 import { DeleteTwoTone } from "@ant-design/icons";
 import { useEffect, useState } from "react";
-import "../../../styles/orderPage.scss";
+import { Input } from "antd";
+import type { FormProps } from "antd";
 import { useCurrentApp } from "@/context/app.context";
-import { useForm } from "antd/es/form/Form";
+import { createOrderApi } from "@/components/services/api";
+
+const { TextArea } = Input;
+
+type UserMethod = "COD" | "BANKING";
+
+type FieldType = {
+  fullName: string;
+  phone: string;
+  address: string;
+  method: UserMethod;
+};
 
 interface IProps {
   setCurrentStep: (v: number) => void;
 }
-
-const PaymentPage = (props: IProps) => {
-  const { setCurrentStep } = props;
-  const { carts, setCarts } = useCurrentApp();
+const Payment = (props: IProps) => {
+  const { carts, setCarts, user } = useCurrentApp();
   const [totalPrice, setTotalPrice] = useState(0);
-  const [form] = useForm();
+
+  const [form] = Form.useForm();
+
+  const [isSubmit, setIsSubmit] = useState(false);
+  const { message, notification } = App.useApp();
+  const { setCurrentStep } = props;
+
+  useEffect(() => {
+    if (user) {
+      form.setFieldsValue({
+        fullName: user.fullName,
+        phone: user.phone,
+        method: "COD",
+      });
+    }
+  }, [user]);
 
   useEffect(() => {
     if (carts && carts.length > 0) {
@@ -36,194 +52,175 @@ const PaymentPage = (props: IProps) => {
     }
   }, [carts]);
 
-  const handleOnChangeInput = (value: number, book: IBookTable) => {
-    if (!value || +value < 1) return;
-    if (!isNaN(+value)) {
-      // Update localStorage
-      const cartStorage = localStorage.getItem("carts");
-      if (cartStorage && book) {
-        // Update
-        const carts = JSON.parse(cartStorage) as ICart[];
-
-        // Check if the item exists
-        let isExistIndex = carts.findIndex((c) => c._id === book?._id);
-        if (isExistIndex > -1) {
-          carts[isExistIndex].quantity = +value;
-        }
-
-        localStorage.setItem("carts", JSON.stringify(carts));
-
-        // Sync React Context
-        setCarts(carts);
-      }
-    }
-  };
-
   const handleRemoveBook = (_id: string) => {
     const cartStorage = localStorage.getItem("carts");
     if (cartStorage) {
-      // Update
+      // update
       const carts = JSON.parse(cartStorage) as ICart[];
       const newCarts = carts.filter((item) => item._id !== _id);
       localStorage.setItem("carts", JSON.stringify(newCarts));
-      // Sync React Context
+      // sync React Context
       setCarts(newCarts);
     }
   };
 
+  const handlePlaceOrder: FormProps<FieldType>["onFinish"] = async (values) => {
+    const { address, fullName, method, phone } = values;
+    const detail = carts.map((item) => ({
+      _id: item._id,
+      quantity: item.quantity,
+      bookName: item.detail.mainText,
+    }));
+
+    setIsSubmit(true);
+    const res = await createOrderApi(
+      fullName,
+      address,
+      phone,
+      totalPrice,
+      method,
+      detail
+    );
+    if (res?.data) {
+      localStorage.removeItem("carts");
+      setCarts([]);
+      message.success("Order placed successfully!");
+      setCurrentStep(2);
+    } else {
+      notification.error({
+        message: "An error occurred",
+        description:
+          res.message && Array.isArray(res.message)
+            ? res.message[0]
+            : res.message,
+        duration: 5,
+      });
+    }
+
+    setIsSubmit(false);
+  };
+
   return (
-    <div style={{ background: "#efefef", padding: "20px 0" }}>
-      <div
-        className="order-container"
-        style={{ maxWidth: 1440, margin: "0 auto" }}
-      >
-        <Row gutter={[20, 20]}>
-          <Col md={18} xs={24}>
-            {carts?.map((item, index) => {
-              const currentBookPrice = item?.detail?.price ?? 0;
-              return (
-                <div className="order-book" key={`index-${index}`}>
-                  <div className="book-content">
-                    <img
-                      alt="no image"
-                      src={`${import.meta.env.VITE_BACKEND_URL}/images/book/${
-                        item?.detail?.thumbnail
-                      }`}
-                    />
-                    <div className="title">{item?.detail?.mainText}</div>
-                    <div className="price">
-                      {new Intl.NumberFormat("en-US", {
-                        style: "currency",
-                        currency: "USD",
-                      }).format(currentBookPrice)}
-                    </div>
-                  </div>
-                  <div className="action">
-                    <div className="quantity">
-                      <InputNumber
-                        onChange={(value) =>
-                          handleOnChangeInput(value as number, item.detail)
-                        }
-                        value={item.quantity}
-                      />
-                    </div>
-                    <div className="sum">
-                      Total:
-                      {new Intl.NumberFormat("en-US", {
-                        style: "currency",
-                        currency: "USD",
-                      }).format(currentBookPrice * (item?.quantity ?? 0))}
-                    </div>
-                    <DeleteTwoTone
-                      style={{ cursor: "pointer" }}
-                      onClick={() => handleRemoveBook(item._id)}
-                      twoToneColor="#eb2f96"
-                    />
-                  </div>
-                </div>
-              );
-            })}
-          </Col>
-          <Col md={6} xs={24}>
-            <Form
-              form={form}
-              layout="vertical"
-              style={{
-                maxWidth: 500,
-                margin: "auto",
-                background: "#fff",
-                padding: 20,
-                borderRadius: 8,
-              }}
-            >
-              <h1 style={{ textAlign: "center", color: "yellow" }}>
-                Payment Methods
-              </h1>
-              <Form.Item
-                labelAlign="left"
-                labelCol={{ span: 24 }}
-                style={{ textAlign: "center" }}
-              >
-                <Radio.Group>
-                  <Radio value="cod">Cash on Delivery</Radio>
-                  <Radio value="bank">Bank Transfer</Radio>
-                </Radio.Group>
-              </Form.Item>
-
-              <Form.Item
-                label="Full Name"
-                name="name"
-                rules={[
-                  { required: true, message: "Please enter your full name" },
-                ]}
-              >
-                <Input placeholder="Enter your full name" />
-              </Form.Item>
-
-              <Form.Item
-                label="Phone Number"
-                name="phone"
-                rules={[
-                  { required: true, message: "Please enter your phone number" },
-                ]}
-              >
-                <Input placeholder="Enter your phone number" />
-              </Form.Item>
-
-              <Form.Item
-                label="Shipping Address"
-                name="address"
-                rules={[
-                  { required: true, message: "Please enter your address" },
-                ]}
-              >
-                <Input.TextArea
-                  placeholder="Enter your shipping address"
-                  rows={3}
+    <Row gutter={[20, 20]}>
+      <Col md={16} xs={24}>
+        {carts?.map((book, index) => {
+          const currentBookPrice = book?.detail?.price ?? 0;
+          return (
+            <div className="order-book" key={`index-${index}`}>
+              <div className="book-content">
+                <img
+                  alt="no image"
+                  src={`${import.meta.env.VITE_BACKEND_URL}/images/book/${
+                    book?.detail?.thumbnail
+                  }`}
                 />
-              </Form.Item>
-
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  marginBottom: 10,
-                }}
-              >
-                <span>Subtotal</span>
-                <span>{totalPrice} ₫</span>
+                <div className="title">{book?.detail?.mainText}</div>
+                <div className="price">
+                  {new Intl.NumberFormat("vi-VN", {
+                    style: "currency",
+                    currency: "VND",
+                  }).format(currentBookPrice)}
+                </div>
               </div>
-              <hr />
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  fontWeight: "bold",
-                  color: "red",
-                  fontSize: 16,
-                }}
-              >
-                <span>Total</span>
-                <span>{totalPrice} ₫</span>
+              <div className="action">
+                <div className="quantity">Quantity: {book?.quantity}</div>
+                <div className="sum">
+                  Total:{" "}
+                  {new Intl.NumberFormat("vi-VN", {
+                    style: "currency",
+                    currency: "VND",
+                  }).format(currentBookPrice * (book?.quantity ?? 0))}
+                </div>
+                <DeleteTwoTone
+                  style={{ cursor: "pointer" }}
+                  onClick={() => handleRemoveBook(book._id)}
+                  twoToneColor="#eb2f96"
+                />
               </div>
+            </div>
+          );
+        })}
+        <div>
+          <span style={{ cursor: "pointer" }} onClick={() => setCurrentStep(0)}>
+            Go back
+          </span>
+        </div>
+      </Col>
+      <Col md={8} xs={24}>
+        <Form
+          form={form}
+          name="payment-form"
+          onFinish={handlePlaceOrder}
+          autoComplete="off"
+          layout="vertical"
+        >
+          <div className="order-sum">
+            <Form.Item<FieldType> label="Payment method" name="method">
+              <Radio.Group>
+                <Space direction="vertical">
+                  <Radio value={"COD"}>Cash on Delivery</Radio>
+                  <Radio value={"BANKING"}>Bank Transfer</Radio>
+                </Space>
+              </Radio.Group>
+            </Form.Item>
 
-              {/* Submit Button */}
-              <Form.Item>
-                <Button
-                  type="primary"
-                  block
-                  size="large"
-                  style={{ backgroundColor: "#ff4d4f", borderColor: "#ff4d4f" }}
-                >
-                  Place Order (5)
-                </Button>
-              </Form.Item>
-            </Form>
-          </Col>
-        </Row>
-      </div>
-    </div>
+            <Form.Item<FieldType>
+              label="Full Name"
+              name="fullName"
+              rules={[{ required: true, message: "Full name is required!" }]}
+            >
+              <Input />
+            </Form.Item>
+
+            <Form.Item<FieldType>
+              label="Phone Number"
+              name="phone"
+              rules={[{ required: true, message: "Phone number is required!" }]}
+            >
+              <Input />
+            </Form.Item>
+
+            <Form.Item<FieldType>
+              label="Delivery Address"
+              name="address"
+              rules={[{ required: true, message: "Address is required!" }]}
+            >
+              <TextArea rows={4} />
+            </Form.Item>
+
+            <div className="calculate">
+              <span> Subtotal</span>
+              <span>
+                {new Intl.NumberFormat("vi-VN", {
+                  style: "currency",
+                  currency: "VND",
+                }).format(totalPrice || 0)}
+              </span>
+            </div>
+            <Divider style={{ margin: "10px 0" }} />
+            <div className="calculate">
+              <span> Total</span>
+              <span className="sum-final">
+                {new Intl.NumberFormat("vi-VN", {
+                  style: "currency",
+                  currency: "VND",
+                }).format(totalPrice || 0)}
+              </span>
+            </div>
+            <Divider style={{ margin: "10px 0" }} />
+            <Button
+              color="danger"
+              variant="solid"
+              htmlType="submit"
+              loading={isSubmit}
+            >
+              Place Order ({carts?.length ?? 0})
+            </Button>
+          </div>
+        </Form>
+      </Col>
+    </Row>
   );
 };
 
-export default PaymentPage;
+export default Payment;

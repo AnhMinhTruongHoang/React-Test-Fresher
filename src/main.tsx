@@ -19,6 +19,7 @@ import BookPage from "./components/client/Products/product";
 import OrderPageStep from "./components/client/order/checkout.step";
 import PaymentPage from "./components/client/order/payment";
 import OrderDetail from "./components/client/order/orderPage";
+import OrderSuccess from "./components/client/order/order.sucess";
 
 const router = createBrowserRouter([
   {
@@ -38,6 +39,14 @@ const router = createBrowserRouter([
         element: <AboutPage />,
       },
       {
+        path: "/OrderPageStep",
+        element: (
+          <ProtectedRound>
+            <OrderPageStep />
+          </ProtectedRound>
+        ),
+      },
+      {
         path: "/checkout",
         element: (
           <ProtectedRound>
@@ -54,10 +63,10 @@ const router = createBrowserRouter([
         ),
       },
       {
-        path: "/OrderPageStep",
+        path: "/orderSuccess",
         element: (
           <ProtectedRound>
-            <OrderPageStep />
+            <OrderSuccess />
           </ProtectedRound>
         ),
       },

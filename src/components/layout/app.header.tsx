@@ -86,7 +86,9 @@ const AppHeader = (props: any) => {
         </div>
         {carts.length > 0 ? (
           <div className="pop-cart-footer" style={{ justifyContent: "center" }}>
-            <button onClick={() => navigate("/orderPage")}>View Cart</button>
+            <button onClick={() => navigate("/OrderPageStep")}>
+              View Cart
+            </button>
           </div>
         ) : (
           <Empty description="No products in cart" />

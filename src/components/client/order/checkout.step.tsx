@@ -3,6 +3,7 @@ import { useState } from "react";
 import Payment from "@/components/client/order/payment";
 import "../../../styles/step.scss";
 import OrderDetail from "./orderPage";
+import OrderSuccess from "./order.sucess";
 
 const OrderPageStep = () => {
   const [currentStep, setCurrentStep] = useState<number>(0);
@@ -19,19 +20,20 @@ const OrderPageStep = () => {
             current={currentStep}
             items={[
               {
-                title: "Đơn hàng",
+                title: "Order",
               },
               {
-                title: "Đặt hàng",
+                title: "Place Order",
               },
               {
-                title: "Thanh toán",
+                title: "Payment",
               },
             ]}
           />
         </div>
         {currentStep === 0 && <OrderDetail setCurrentStep={setCurrentStep} />}
         {currentStep === 1 && <Payment setCurrentStep={setCurrentStep} />}
+        {currentStep === 2 && <OrderSuccess />}
       </div>
     </div>
   );
