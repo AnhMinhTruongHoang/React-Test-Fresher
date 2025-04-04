@@ -20,6 +20,7 @@ import OrderPageStep from "./components/client/order/checkout.step";
 import PaymentPage from "./components/client/order/payment";
 import OrderDetail from "./components/client/order/orderPage";
 import OrderSuccess from "./components/client/order/order.sucess";
+import OrderHistoryPage from "./components/client/order/order.history";
 
 const router = createBrowserRouter([
   {
@@ -59,6 +60,14 @@ const router = createBrowserRouter([
         element: (
           <ProtectedRound>
             <OrderDetail />
+          </ProtectedRound>
+        ),
+      },
+      {
+        path: "/OrderHistoryPage",
+        element: (
+          <ProtectedRound>
+            <OrderHistoryPage />
           </ProtectedRound>
         ),
       },

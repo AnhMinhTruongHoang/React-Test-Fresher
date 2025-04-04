@@ -22,7 +22,9 @@ const OrderSuccess = () => {
           <Button type="primary" key="home" onClick={() => navigate("/")}>
             Home
           </Button>,
-          <Button key="history">Order History</Button>,
+          <Button key="history" onClick={() => navigate("/OrderHistoryPage")}>
+            Order History
+          </Button>,
         ]}
       />
     </div>

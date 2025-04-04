@@ -37,7 +37,7 @@ const AppHeader = (props: any) => {
       key: "account",
     },
     {
-      label: <Link to="/history">Purchase History</Link>,
+      label: <Link to="/OrderHistoryPage">Purchase History</Link>,
       key: "history",
     },
     {

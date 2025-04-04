@@ -6,6 +6,7 @@ import { BsCartPlus } from "react-icons/bs";
 import "styles/book.scss";
 import ModalGallery from "./modal.gallery";
 import { useCurrentApp } from "@/context/app.context";
+import { Link } from "react-router-dom";
 
 interface IProps {
   currentBook: IBookTable | null;
@@ -232,7 +233,9 @@ const BookDetail = (props: IProps) => {
                     <BsCartPlus className="icon-cart" />
                     <span>Add to Cart</span>
                   </button>
-                  <button className="now">Buy Now !</button>
+                  <button className="now">
+                    <Link to={"/OrderPageStep"}>Buy Now !</Link>
+                  </button>
                 </div>
               </Col>
             </Col>

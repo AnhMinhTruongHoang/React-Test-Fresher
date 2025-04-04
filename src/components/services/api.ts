@@ -192,3 +192,8 @@ export const createOrderApi = (
     detail,
   });
 };
+
+export const getOrderHistoryApi = () => {
+  const urlBackend = "/api/v1/history";
+  return axios.get<IBackendRes<IHistory[]>>(urlBackend);
+};
