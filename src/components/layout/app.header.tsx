@@ -9,9 +9,11 @@ import "./app.header.scss";
 import { Link } from "react-router-dom";
 import { useCurrentApp } from "../../context/app.context";
 import { logoutApi } from "../services/api";
+import AccountModal from "../client/profile/profile.user";
 
 const AppHeader = (props: any) => {
-  const [openDrawer, setOpenDrawer] = useState(false);
+  const [openDrawer, setOpenDrawer] = useState<boolean>(false);
+  const [openAccountModal, setOpenAccountModal] = useState<boolean>(false);
 
   const { isAuthenticated, user, setUser, setIsAuthenticated, carts } =
     useCurrentApp();
@@ -30,7 +32,10 @@ const AppHeader = (props: any) => {
   let items = [
     {
       label: (
-        <label style={{ cursor: "pointer" }} onClick={() => alert("me")}>
+        <label
+          style={{ cursor: "pointer" }}
+          onClick={() => setOpenAccountModal(true)}
+        >
           Account Management
         </label>
       ),
@@ -172,6 +177,10 @@ const AppHeader = (props: any) => {
         <p onClick={() => handleLogout()}>Logout</p>
         <Divider />
       </Drawer>
+      <AccountModal
+        openAccountModal={openAccountModal}
+        setOpenAccountModal={setOpenAccountModal}
+      />
     </>
   );
 };

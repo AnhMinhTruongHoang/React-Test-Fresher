@@ -21,6 +21,7 @@ import PaymentPage from "./components/client/order/payment";
 import OrderDetail from "./components/client/order/orderPage";
 import OrderSuccess from "./components/client/order/order.sucess";
 import OrderHistoryPage from "./components/client/order/order.history";
+import AccountModal from "./components/client/profile/profile.user";
 
 const router = createBrowserRouter([
   {
@@ -76,6 +77,14 @@ const router = createBrowserRouter([
         element: (
           <ProtectedRound>
             <OrderSuccess />
+          </ProtectedRound>
+        ),
+      },
+      {
+        path: "/accountModal",
+        element: (
+          <ProtectedRound>
+            <AccountModal />
           </ProtectedRound>
         ),
       },
