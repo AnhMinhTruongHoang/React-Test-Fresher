@@ -49,15 +49,16 @@ const AccountModal = (props: IProps) => {
   }/images/avatar/${userAvatar}`;
 
   useEffect(() => {
-    if (user) {
+    if (openAccountModal && user) {
       form.setFieldsValue({
         _id: user.id,
         email: user.email,
         phone: user.phone,
         fullName: user.fullName,
       });
+      setUserAvatar(user.avatar ?? "");
     }
-  }, [user]);
+  }, [openAccountModal]);
 
   /////////////// image handle
   const handleUploadFile = async (options: RcCustomRequestOptions) => {
@@ -69,7 +70,7 @@ const AccountModal = (props: IProps) => {
       const newAvatar = res.data.fileUploaded;
       setUserAvatar(newAvatar);
 
-      if (onSuccess) onSuccess("ok");
+      if (onSuccess) onSuccess("Success !");
     } else {
       message.error(res.message);
     }
@@ -84,9 +85,9 @@ const AccountModal = (props: IProps) => {
       if (info.file.status !== "uploading") {
       }
       if (info.file.status === "done") {
-        message.success(`Upload file thành công`);
+        message.success(`Uploaled`);
       } else if (info.file.status === "error") {
-        message.error(`Upload file thất bại`);
+        message.error(`Upload failed`);
       }
     },
   };
@@ -131,13 +132,13 @@ const AccountModal = (props: IProps) => {
         oldpass,
         newpass,
       });
-      message.success("Cập nhật thông tin user thành công");
+      message.success("Updated !");
 
       //force renew token
       localStorage.removeItem("access_token");
     } else {
       notification.error({
-        message: "Đã có lỗi xảy ra",
+        message: "Failed to update!",
         description: res.message,
       });
     }
