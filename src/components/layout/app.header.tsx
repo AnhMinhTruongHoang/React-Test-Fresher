@@ -10,8 +10,11 @@ import { Link } from "react-router-dom";
 import { useCurrentApp } from "../../context/app.context";
 import { logoutApi } from "../services/api";
 import AccountModal from "../client/profile/profile.user";
+import { useRef } from "react";
+import { ActionType } from "@ant-design/pro-components";
 
 const AppHeader = (props: any) => {
+  const actionRef = useRef<ActionType>();
   const [openDrawer, setOpenDrawer] = useState<boolean>(false);
   const [openAccountModal, setOpenAccountModal] = useState<boolean>(false);
 
@@ -64,6 +67,10 @@ const AppHeader = (props: any) => {
   const urlAvatar = `${import.meta.env.VITE_BACKEND_URL}/images/avatar/${
     user?.avatar
   }`;
+
+  const refreshTable = () => {
+    actionRef.current?.reload();
+  };
 
   const contentPopover = () => {
     return (
@@ -178,6 +185,7 @@ const AppHeader = (props: any) => {
         <Divider />
       </Drawer>
       <AccountModal
+        refreshTable={refreshTable}
         openAccountModal={openAccountModal}
         setOpenAccountModal={setOpenAccountModal}
       />
