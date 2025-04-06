@@ -34,8 +34,7 @@ type FieldType = {
   fullName: string;
   phone: string;
   avatar: string;
-  oldpass: string;
-  newpass: string;
+  newpass: string; // Only include the newpass field for password change
 };
 
 const AccountModal = (props: IProps) => {
@@ -85,7 +84,7 @@ const AccountModal = (props: IProps) => {
       if (info.file.status !== "uploading") {
       }
       if (info.file.status === "done") {
-        message.success(`Uploaled`);
+        message.success(`Uploaded`);
       } else if (info.file.status === "error") {
         message.error(`Upload failed`);
       }
@@ -119,26 +118,25 @@ const AccountModal = (props: IProps) => {
     setIsSubmit(false);
   };
 
-  ////////////////////////// password
+  ////////////////////////// password (now only new password)
   const onFinishPassword: FormProps<FieldType>["onFinish"] = async (values) => {
-    const { email, oldpass, newpass } = values;
+    const { email, newpass } = values;
 
-    const res = await updateUserPasswordAPI(email, oldpass, newpass);
+    const res = await updateUserPasswordAPI(email, "", newpass);
 
     if (res && res.data) {
       setUser({
         ...user!,
         email,
-        oldpass,
         newpass,
       });
-      message.success("Updated !");
+      message.success("Password Updated!");
 
       //force renew token
       localStorage.removeItem("access_token");
     } else {
       notification.error({
-        message: "Failed to update!",
+        message: "Failed to update password!",
         description: res.message,
       });
     }
@@ -228,33 +226,20 @@ const AccountModal = (props: IProps) => {
 
         <TabPane tab="Change Password" key="2">
           <Form form={form} layout="vertical" onFinish={onFinishPassword}>
+            <Form.Item label="Email" name="email">
+              <Input disabled />
+            </Form.Item>
+
+            <Form.Item label="New password" name="newpass">
+              <Input.Password />
+            </Form.Item>
+
             <Form.Item
-              style={{
-                display: "block",
-                margin: "10px auto",
-                textAlign: "center",
-                justifyContent: "center",
-              }}
+              style={{ justifyContent: "center", textAlign: "center" }}
             >
-              <Form.Item label="Email" name="email">
-                <Input />
-              </Form.Item>
-
-              <Form.Item label="Old password" name="oldpass">
-                <Input />
-              </Form.Item>
-
-              <Form.Item label="New password" name="newpass">
-                <Input />
-              </Form.Item>
-
-              <Form.Item
-                style={{ justifyContent: "center", textAlign: "center" }}
-              >
-                <Button type="primary" htmlType="submit">
-                  Update
-                </Button>
-              </Form.Item>
+              <Button type="primary" htmlType="submit">
+                Update Password
+              </Button>
             </Form.Item>
           </Form>
         </TabPane>

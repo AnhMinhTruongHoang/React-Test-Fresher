@@ -3,6 +3,7 @@ import { DeleteTwoTone } from "@ant-design/icons";
 import { useEffect, useState } from "react";
 import "../../../styles/orderPage.scss";
 import { useCurrentApp } from "@/context/app.context";
+import { isMobile } from "react-device-detect"; // Importing isMobile
 
 interface IProps {
   setCurrentStep: (v: number) => void;
@@ -28,21 +29,14 @@ const OrderDetail = (props: IProps) => {
   const handleOnChangeInput = (value: number, book: IBookTable) => {
     if (!value || +value < 1) return;
     if (!isNaN(+value)) {
-      // Update localStorage
       const cartStorage = localStorage.getItem("carts");
       if (cartStorage && book) {
-        // Update
         const carts = JSON.parse(cartStorage) as ICart[];
-
-        // Check if the item exists
         let isExistIndex = carts.findIndex((c) => c._id === book?._id);
         if (isExistIndex > -1) {
           carts[isExistIndex].quantity = +value;
         }
-
         localStorage.setItem("carts", JSON.stringify(carts));
-
-        // Sync React Context
         setCarts(carts);
       }
     }
@@ -51,11 +45,9 @@ const OrderDetail = (props: IProps) => {
   const handleRemoveBook = (_id: string) => {
     const cartStorage = localStorage.getItem("carts");
     if (cartStorage) {
-      // Update
       const carts = JSON.parse(cartStorage) as ICart[];
       const newCarts = carts.filter((item) => item._id !== _id);
       localStorage.setItem("carts", JSON.stringify(newCarts));
-      // Sync React Context
       setCarts(newCarts);
     }
   };
@@ -120,37 +112,39 @@ const OrderDetail = (props: IProps) => {
                 </div>
               );
             })}
-            {carts.length === 0 && (
-              <Empty description="Không có sản phẩm trong giỏ hàng" />
-            )}
+            {carts.length === 0 && <Empty description="Cart is Empty" />}
           </Col>
-          <Col md={6} xs={24}>
-            <div className="order-sum">
-              <div className="calculate">
-                <span> Subtotal</span>
-                <span>
-                  {new Intl.NumberFormat("en-US", {
-                    style: "currency",
-                    currency: "USD",
-                  }).format(totalPrice || 0)}
-                </span>
+
+          {/* Mobile vs Desktop Layout Adjustment */}
+          {!isMobile && (
+            <Col md={6} xs={24}>
+              <div className="order-sum">
+                <div className="calculate">
+                  <span>Subtotal</span>
+                  <span>
+                    {new Intl.NumberFormat("en-US", {
+                      style: "currency",
+                      currency: "USD",
+                    }).format(totalPrice || 0)}
+                  </span>
+                </div>
+                <Divider style={{ margin: "10px 0" }} />
+                <div className="calculate">
+                  <span>Total Amount</span>
+                  <span className="sum-final">
+                    {new Intl.NumberFormat("en-US", {
+                      style: "currency",
+                      currency: "USD",
+                    }).format(totalPrice || 0)}
+                  </span>
+                </div>
+                <Divider style={{ margin: "10px 0" }} />
+                <button onClick={() => handleNextStep()}>
+                  Buy Now ({carts?.length ?? 0})
+                </button>
               </div>
-              <Divider style={{ margin: "10px 0" }} />
-              <div className="calculate">
-                <span>Total Amount</span>
-                <span className="sum-final">
-                  {new Intl.NumberFormat("en-US", {
-                    style: "currency",
-                    currency: "USD",
-                  }).format(totalPrice || 0)}
-                </span>
-              </div>
-              <Divider style={{ margin: "10px 0" }} />
-              <button onClick={() => handleNextStep()}>
-                Buy Now ({carts?.length ?? 0})
-              </button>
-            </div>
-          </Col>
+            </Col>
+          )}
         </Row>
       </div>
     </div>

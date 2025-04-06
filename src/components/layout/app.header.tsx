@@ -133,8 +133,8 @@ const AppHeader = (props: any) => {
                 className="input-search"
                 type={"text"}
                 placeholder="What are you looking for today?"
-                // value={props.searchTerm}
-                // onChange={(e) => props.setSearchTerm(e.target.value)}
+                value={props.searchTerm}
+                onChange={(e) => props.setSearchTerm(e.target.value)}
               />
             </div>
           </div>

@@ -20,7 +20,7 @@ import {
 import { FormProps } from "antd/lib";
 import "../styles/homePage.scss";
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useOutletContext } from "react-router-dom";
 import { getBookApi, getCategoryApi } from "@/components/services/api";
 import MobileFilter from "./mobile.fillter";
 
@@ -38,6 +38,7 @@ type FieldType = {
 };
 
 const HomePage = () => {
+  const [searchTerm] = useOutletContext() as any;
   const [form] = Form.useForm();
   const navigate = useNavigate();
   const [listBook, SetListBook] = useState<IBookTable[]>([]);
@@ -71,7 +72,7 @@ const HomePage = () => {
 
   useEffect(() => {
     fetchBook();
-  }, [current, pageSize, filter, sortQuery]);
+  }, [current, pageSize, filter, sortQuery, searchTerm]);
 
   const fetchBook = async () => {
     setIsLoading(true);
@@ -81,6 +82,9 @@ const HomePage = () => {
     }
     if (sortQuery) {
       query += `&${sortQuery}`;
+    }
+    if (searchTerm) {
+      query += `&mainText=/${searchTerm}/i`;
     }
 
     const res = await getBookApi(query);

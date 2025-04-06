@@ -1,30 +1,56 @@
+import { Card, Col, Row, Statistic } from "antd";
+import { useEffect, useState } from "react";
 import CountUp from "react-countup";
+import { getDashboardAPI } from "../services/api";
 
 const DashBoardPage = () => {
+  const [dataDashboard, setDataDashboard] = useState({
+    countOrder: 0,
+    countUser: 0,
+    countBook: 0,
+  });
+
+  useEffect(() => {
+    const initDashboard = async () => {
+      const res = await getDashboardAPI();
+      if (res && res.data) setDataDashboard(res.data);
+    };
+    initDashboard();
+  }, []);
+
+  const formatter = (value: any) => <CountUp end={value} separator="," />;
   return (
-    <>
-      <div>
-        <CountUp
-          start={-875.039}
-          end={160527.012}
-          duration={2.75}
-          separator=" "
-          decimals={4}
-          decimal=","
-          prefix="EUR "
-          suffix=" left"
-          onEnd={() => console.log("Ended! 👏")}
-          onStart={() => console.log("Started! 💨")}
-        >
-          {({ countUpRef, start }) => (
-            <div>
-              <span ref={countUpRef} />
-              <button onClick={start}>Start</button>
-            </div>
-          )}
-        </CountUp>
-      </div>
-    </>
+    <Row gutter={[40, 40]}>
+      <Col span={8}>
+        <Card title="" bordered={false}>
+          <Statistic
+            title="Total Users"
+            value={dataDashboard.countUser}
+            formatter={formatter}
+          />
+        </Card>
+      </Col>
+      <Col span={8}>
+        <Card title="" bordered={false}>
+          <Statistic
+            title="Total Orders"
+            value={dataDashboard.countOrder}
+            precision={2}
+            formatter={formatter}
+          />
+        </Card>
+      </Col>
+      <Col span={8}>
+        <Card title="" bordered={false}>
+          <Statistic
+            title="Total Books"
+            value={dataDashboard.countBook}
+            precision={2}
+            formatter={formatter}
+          />
+        </Card>
+      </Col>
+    </Row>
   );
 };
 

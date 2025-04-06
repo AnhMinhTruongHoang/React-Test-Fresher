@@ -234,7 +234,12 @@ const BookDetail = (props: IProps) => {
                     <span>Add to Cart</span>
                   </button>
                   <button className="now">
-                    <Link to={"/OrderPageStep"}>Buy Now !</Link>
+                    <Link
+                      to={"/OrderPageStep"}
+                      onClick={() => handleAddToCart()}
+                    >
+                      Buy Now !
+                    </Link>
                   </button>
                 </div>
               </Col>

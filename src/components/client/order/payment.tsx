@@ -5,6 +5,7 @@ import { Input } from "antd";
 import type { FormProps } from "antd";
 import { useCurrentApp } from "@/context/app.context";
 import { createOrderApi } from "@/components/services/api";
+import { isMobile } from "react-device-detect";
 
 const { TextArea } = Input;
 
@@ -20,6 +21,7 @@ type FieldType = {
 interface IProps {
   setCurrentStep: (v: number) => void;
 }
+
 const Payment = (props: IProps) => {
   const { carts, setCarts, user } = useCurrentApp();
   const [totalPrice, setTotalPrice] = useState(0);
@@ -146,13 +148,15 @@ const Payment = (props: IProps) => {
           </span>
         </div>
       </Col>
+
+      {/* Adjust layout based on mobile or desktop */}
       <Col md={8} xs={24}>
         <Form
           form={form}
           name="payment-form"
           onFinish={handlePlaceOrder}
           autoComplete="off"
-          layout="vertical"
+          layout={isMobile ? "horizontal" : "vertical"} // Mobile layout for form
         >
           <div className="order-sum">
             <Form.Item<FieldType> label="Payment method" name="method">
