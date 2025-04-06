@@ -11,11 +11,12 @@ import {
   BookOutlined,
 } from "@ant-design/icons";
 import { Layout, Menu, Dropdown, Space, Avatar } from "antd";
-import { Navigate, Outlet } from "react-router-dom";
+import { Outlet } from "react-router-dom";
 import { Link } from "react-router-dom";
 import type { MenuProps } from "antd";
 import { logoutApi } from "../services/api";
 import { useCurrentApp } from "@/context/app.context";
+import { BiDetail } from "react-icons/bi";
 type MenuItem = Required<MenuProps>["items"][number];
 
 const { Content, Footer, Sider } = Layout;
@@ -69,6 +70,13 @@ const LayoutAdmin = () => {
       label: <Link to="/admin/order">Manage Orders</Link>,
       key: "order",
       icon: <DollarCircleOutlined />,
+      children: [
+        {
+          label: <Link to="/admin/order">Details</Link>,
+          key: "crudOrder",
+          icon: <BiDetail />,
+        },
+      ],
     },
   ];
 
@@ -76,19 +84,19 @@ const LayoutAdmin = () => {
     {
       label: (
         <label style={{ cursor: "pointer" }} onClick={() => alert("me")}>
-          Quản lý tài khoản
+          Account Management
         </label>
       ),
       key: "account",
     },
     {
-      label: <Link to={"/"}>Trang chủ</Link>,
+      label: <Link to={"/"}>Homepage</Link>,
       key: "home",
     },
     {
       label: (
         <label style={{ cursor: "pointer" }} onClick={() => handleLogout()}>
-          Đăng xuất
+          Logout
         </label>
       ),
       key: "logout",
@@ -99,7 +107,7 @@ const LayoutAdmin = () => {
     user?.avatar
   }`;
 
-  ////////////////////////// check role
+  ///////////////// Check user role and redirect if necessary
   if (isAuthenticated === false) {
     return <Outlet />;
   }
@@ -111,7 +119,7 @@ const LayoutAdmin = () => {
     }
   }
 
-  /////////////////////
+  /////////////////
 
   return (
     <>

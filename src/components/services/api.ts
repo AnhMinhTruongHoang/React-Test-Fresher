@@ -226,3 +226,12 @@ export const updateUserPasswordAPI = (
     newpass,
   });
 };
+///////////// order admin
+export const getOrderApi = () => {
+  const urlBackend = `/api/v1/order?current=1&pageSize=10`;
+  return axios.get<IBackendRes<IModelPaginate<IOrder>>>(urlBackend);
+};
+export const getDashBroadApi = () => {
+  const urlBackend = "/api/v1/database/dashboard";
+  return axios.get<IBackendRes<IModelPaginate<IOrder>>>(urlBackend);
+};

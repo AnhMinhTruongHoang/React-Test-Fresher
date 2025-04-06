@@ -120,4 +120,27 @@ declare global {
     createdAt: Date;
     updatedAt: Date;
   }
+
+  export interface IOrderDetail {
+    _id: string;
+    bookName: string;
+    quantity: number;
+    price: string;
+  }
+
+  export interface IOrder {
+    _id: string;
+    name: string;
+    address: string;
+    phone: string;
+    type: "COD" | "BANKING" | string;
+    paymentStatus: "PAID" | "UNPAID" | string;
+    paymentRef: string;
+    detail: IOrderDetail[];
+    totalPrice: number;
+    createdAt: string | Date;
+    updatedAt: string | Date;
+    userId?: string;
+    email?: string;
+  }
 }

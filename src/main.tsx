@@ -88,6 +88,14 @@ const router = createBrowserRouter([
           </ProtectedRound>
         ),
       },
+      {
+        path: "/ManageOrderPage",
+        element: (
+          <ProtectedRound>
+            <ManageOrderPage />
+          </ProtectedRound>
+        ),
+      },
     ],
   },
   {
@@ -124,14 +132,6 @@ const router = createBrowserRouter([
         element: (
           <ProtectedRound>
             <ManageUserPage />
-          </ProtectedRound>
-        ),
-      },
-      {
-        path: "/admin",
-        element: (
-          <ProtectedRound>
-            <div>admin page</div>
           </ProtectedRound>
         ),
       },
