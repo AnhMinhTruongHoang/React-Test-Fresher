@@ -22,7 +22,6 @@ const ReturnURLPage = () => {
           paymentRef
         );
         if (res.data) {
-          //todo
         } else {
           notification.error({
             message: "An error occurred",
