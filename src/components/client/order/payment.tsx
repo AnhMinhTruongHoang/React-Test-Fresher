@@ -4,8 +4,9 @@ import { useEffect, useState } from "react";
 import { Input } from "antd";
 import type { FormProps } from "antd";
 import { useCurrentApp } from "@/context/app.context";
-import { createOrderApi } from "@/components/services/api";
+import { createOrderApi, getVNPayUrlAPI } from "@/components/services/api";
 import { isMobile } from "react-device-detect";
+import { v4 as uuidv4 } from "uuid";
 
 const { TextArea } = Input;
 
@@ -75,19 +76,54 @@ const Payment = (props: IProps) => {
     }));
 
     setIsSubmit(true);
-    const res = await createOrderApi(
-      fullName,
-      address,
-      phone,
-      totalPrice,
-      method,
-      detail
-    );
+    let res = null;
+    const paymentRef = uuidv4();
+    
+    if (method === "COD") {
+      res = await createOrderApi(
+        fullName,
+        address,
+        phone,
+        totalPrice,
+        method,
+        detail
+      );
+    } else {
+      res = await createOrderApi(
+        fullName,
+        address,
+        phone,
+        totalPrice,
+        method,
+        detail,
+        paymentRef
+      );
+    }
+
     if (res?.data) {
       localStorage.removeItem("carts");
       setCarts([]);
-      message.success("Order placed successfully!");
-      setCurrentStep(2);
+      if (method === "COD") {
+        message.success("Order placed successfully!");
+        setCurrentStep(2);
+      } else {
+        const resVNPAY = await getVNPayUrlAPI(totalPrice, "vn", paymentRef);
+
+        if (resVNPAY.data) {
+          window.location.href = resVNPAY.data.url;
+        } else {
+          notification.error({
+            message: "An error occurred",
+            description:
+              resVNPAY.message && Array.isArray(resVNPAY.message)
+                ? resVNPAY.message[0]
+                : resVNPAY.message,
+            duration: 5,
+          });
+        }
+      }
+
+      /////////////////////
     } else {
       notification.error({
         message: "An error occurred",
@@ -163,7 +199,7 @@ const Payment = (props: IProps) => {
               <Radio.Group>
                 <Space direction="vertical">
                   <Radio value={"COD"}>Cash on Delivery</Radio>
-                  <Radio value={"BANKING"}>Bank Transfer</Radio>
+                  <Radio value={"BANKING"}>VNPAY</Radio>
                 </Space>
               </Radio.Group>
             </Form.Item>

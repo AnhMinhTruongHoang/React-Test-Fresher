@@ -22,6 +22,8 @@ import OrderDetail from "./components/client/order/orderPage";
 import OrderSuccess from "./components/client/order/order.sucess";
 import OrderHistoryPage from "./components/client/order/order.history";
 import AccountModal from "./components/client/profile/profile.user";
+import ChangePassTab from "./components/client/profile/changepass";
+import ReturnURLPage from "./components/client/order/return.url";
 
 const router = createBrowserRouter([
   {
@@ -40,6 +42,7 @@ const router = createBrowserRouter([
         path: "/about",
         element: <AboutPage />,
       },
+
       {
         path: "/OrderPageStep",
         element: (
@@ -96,6 +99,14 @@ const router = createBrowserRouter([
           </ProtectedRound>
         ),
       },
+      {
+        path: "/vnpay/return-url",
+        element: (
+          <ProtectedRound>
+            <ReturnURLPage />
+          </ProtectedRound>
+        ),
+      },
     ],
   },
   {
@@ -132,6 +143,14 @@ const router = createBrowserRouter([
         element: (
           <ProtectedRound>
             <ManageUserPage />
+          </ProtectedRound>
+        ),
+      },
+      {
+        path: "ChangePassTab",
+        element: (
+          <ProtectedRound>
+            <ChangePassTab />
           </ProtectedRound>
         ),
       },

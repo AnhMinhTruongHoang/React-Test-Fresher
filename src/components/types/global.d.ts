@@ -119,6 +119,8 @@ declare global {
     totalPrice: number;
     createdAt: Date;
     updatedAt: Date;
+    paymentStatus: string;
+    paymentRef: string;
   }
 
   export interface IOrderDetail {
@@ -142,5 +144,7 @@ declare global {
     updatedAt: string | Date;
     userId?: string;
     email?: string;
+    paymentStatus: string;
+    paymentRef: string;
   }
 }

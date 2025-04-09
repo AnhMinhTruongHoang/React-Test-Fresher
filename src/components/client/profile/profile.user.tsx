@@ -13,12 +13,9 @@ import { UserOutlined } from "@ant-design/icons";
 import { useCurrentApp } from "@/context/app.context";
 import { useEffect, useState } from "react";
 import { FormProps, UploadFile } from "antd/lib";
-import {
-  updateUserInfoAPI,
-  updateUserPasswordAPI,
-  uploadFileAPI,
-} from "@/components/services/api";
+import { updateUserInfoAPI, uploadFileAPI } from "@/components/services/api";
 import { UploadChangeParam } from "antd/es/upload";
+import ChangePassTab from "./changepass";
 
 const { TabPane } = Tabs;
 
@@ -34,11 +31,10 @@ type FieldType = {
   fullName: string;
   phone: string;
   avatar: string;
-  newpass: string; // Only include the newpass field for password change
 };
 
 const AccountModal = (props: IProps) => {
-  const { openAccountModal, setOpenAccountModal, refreshTable } = props;
+  const { openAccountModal, setOpenAccountModal } = props;
   const { user, setUser } = useCurrentApp();
   const [userAvatar, setUserAvatar] = useState(user?.avatar ?? "");
   const [isSubmit, setIsSubmit] = useState(false);
@@ -105,38 +101,13 @@ const AccountModal = (props: IProps) => {
         fullName,
         phone,
       });
-      message.success("Cập nhật thông tin user thành công");
+      message.success("Updated !");
 
       //force renew token
       localStorage.removeItem("access_token");
     } else {
       notification.error({
-        message: "Đã có lỗi xảy ra",
-        description: res.message,
-      });
-    }
-    setIsSubmit(false);
-  };
-
-  ////////////////////////// password (now only new password)
-  const onFinishPassword: FormProps<FieldType>["onFinish"] = async (values) => {
-    const { email, newpass } = values;
-
-    const res = await updateUserPasswordAPI(email, "", newpass);
-
-    if (res && res.data) {
-      setUser({
-        ...user!,
-        email,
-        newpass,
-      });
-      message.success("Password Updated!");
-
-      //force renew token
-      localStorage.removeItem("access_token");
-    } else {
-      notification.error({
-        message: "Failed to update password!",
+        message: "Failed to Update",
         description: res.message,
       });
     }
@@ -225,23 +196,7 @@ const AccountModal = (props: IProps) => {
         </TabPane>
 
         <TabPane tab="Change Password" key="2">
-          <Form form={form} layout="vertical" onFinish={onFinishPassword}>
-            <Form.Item label="Email" name="email">
-              <Input disabled />
-            </Form.Item>
-
-            <Form.Item label="New password" name="newpass">
-              <Input.Password />
-            </Form.Item>
-
-            <Form.Item
-              style={{ justifyContent: "center", textAlign: "center" }}
-            >
-              <Button type="primary" htmlType="submit">
-                Update Password
-              </Button>
-            </Form.Item>
-          </Form>
+          <ChangePassTab />
         </TabPane>
       </Tabs>
     </Modal>

@@ -4,12 +4,40 @@ import type { TableProps } from "antd";
 import { getOrderHistoryApi } from "@/components/services/api";
 
 const OrderHistoryPage = () => {
+  const [dataHistory, setDataHistory] = useState<IHistory[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [openDetail, setOpenDetail] = useState<boolean>(false);
+  const [dataDetail, setDataDetail] = useState<IHistory | null>(null);
+  const { notification } = App.useApp();
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      const res = await getOrderHistoryApi();
+      if (res && res.data) {
+        setDataHistory(res.data);
+      } else {
+        notification.error({
+          message: "An error occurred",
+          description: res.message,
+        });
+      }
+      setLoading(false);
+    };
+
+    fetchData();
+  }, []);
+
   const columns: TableProps<IHistory>["columns"] = [
     {
       title: "No.",
       dataIndex: "index",
       key: "index",
       render: (item, record, index) => <>{index + 1}</>,
+    },
+    {
+      title: "Order ID",
+      dataIndex: "paymentRef",
     },
     {
       title: "Time",
@@ -34,7 +62,11 @@ const OrderHistoryPage = () => {
     },
     {
       title: "Status",
-      render: (item, record, index) => <Tag color={"green"}>Success</Tag>,
+      render: (item, record, index) => (
+        <Tag color={record.paymentStatus === "UNPAID" ? "volcano" : "green"}>
+          {record.paymentStatus}
+        </Tag>
+      ),
     },
     {
       title: "Details",
@@ -52,32 +84,6 @@ const OrderHistoryPage = () => {
       ),
     },
   ];
-
-  const [dataHistory, setDataHistory] = useState<IHistory[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
-
-  const [openDetail, setOpenDetail] = useState<boolean>(false);
-  const [dataDetail, setDataDetail] = useState<IHistory | null>(null);
-
-  const { notification } = App.useApp();
-
-  useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
-      const res = await getOrderHistoryApi();
-      if (res && res.data) {
-        setDataHistory(res.data);
-      } else {
-        notification.error({
-          message: "An error occurred",
-          description: res.message,
-        });
-      }
-      setLoading(false);
-    };
-
-    fetchData();
-  }, []);
 
   return (
     <div style={{ margin: 50 }}>

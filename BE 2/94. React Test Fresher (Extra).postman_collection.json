@@ -1,0 +1,82 @@
+{
+  "info": {
+    "_postman_id": "4bc4058e-2a39-4fbb-8853-ef5d88371b48",
+    "name": "94. React Test Fresher (Extra)",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "12317336"
+  },
+  "item": [
+    {
+      "name": "Get Vnpay URL",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"amount\": 100000,\r\n    \"locale\": \"vn\",\r\n    \"paymentRef\": \"bdc8b17b-e797-469c-8b3f-67033b6231cf\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8888/vnpay/payment-url",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8888",
+          "path": ["vnpay", "payment-url"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Update Payment Status",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"paymentStatus\": \"PAYMENT_COMPLETE\",\r\n    \"paymentRef\": \"abcxyz\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/v1/order/update-payment-status",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["api", "v1", "order", "update-payment-status"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Login with Google",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"type\": \"GOOGLE\",\r\n    \"email\": \"your.email@gmail.com\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/v1/auth/social-media",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["api", "v1", "auth", "social-media"]
+        }
+      },
+      "response": []
+    }
+  ]
+}
