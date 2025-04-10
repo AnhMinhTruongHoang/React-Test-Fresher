@@ -1,7 +1,19 @@
-import { Button, Checkbox, Form, FormProps, Input, notification } from "antd";
+import {
+  Button,
+  Checkbox,
+  Divider,
+  Form,
+  FormProps,
+  Input,
+  message,
+  notification,
+} from "antd";
 import { Link, useNavigate } from "react-router-dom";
-import { loginApi } from "../services/api";
+import { googleLoginApi, loginApi } from "../services/api";
 import { useCurrentApp } from "@/context/app.context";
+import { GooglePlusOutlined } from "@ant-design/icons";
+import { useGoogleLogin } from "@react-oauth/google";
+import axios from "axios";
 
 type FieldType = {
   username: string;
@@ -13,6 +25,42 @@ function LoginPage() {
   const [form] = Form.useForm();
   const navigate = useNavigate();
   const { setIsAuthenticated, setUser } = useCurrentApp();
+
+  ///////////google login
+
+  const loginWithGoogle = useGoogleLogin({
+    onSuccess: async (tokenResponse) => {
+      console.log(tokenResponse);
+
+      const { data } = await axios(
+        "https://www.googleapis.com/oauth2/v3/userinfo",
+        {
+          headers: {
+            Authorization: `Bearer ${tokenResponse?.access_token}`,
+          },
+        }
+      );
+      ///////////////////// login logic
+      if (data && data.email) {
+        const res = await googleLoginApi("GOOGLE", data.email);
+
+        if (res?.data) {
+          setIsAuthenticated(true);
+          setUser(res.data.user);
+          localStorage.setItem("access_token", res.data.access_token);
+          message.success("Login Success !");
+          navigate("/");
+        } else {
+          notification.error({
+            message: "Failed to Login",
+            description:
+              res.message && Array.isArray(res.message) ? res.message : null,
+            duration: 5,
+          });
+        }
+      }
+    },
+  });
 
   const onFinish: FormProps<FieldType>["onFinish"] = async (values) => {
     const { username, password } = values;
@@ -126,10 +174,13 @@ function LoginPage() {
           </Button>
         </Form.Item>
 
-        <div style={{ margin: "10px 0", fontWeight: "bold" }}>Or</div>
-
+        <Divider style={{ margin: "10px 0", fontWeight: "bold" }}>Or</Divider>
+        <GooglePlusOutlined
+          onClick={() => loginWithGoogle()}
+          style={{ fontSize: 30, color: "orange", marginBottom: "5px" }}
+        />
         <div>
-          Don't have an account?{" "}
+          Don't have an account?
           <span
             style={{
               color: "#4096ff",

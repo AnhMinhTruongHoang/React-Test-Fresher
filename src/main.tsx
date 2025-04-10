@@ -24,6 +24,7 @@ import OrderHistoryPage from "./components/client/order/order.history";
 import AccountModal from "./components/client/profile/profile.user";
 import ChangePassTab from "./components/client/profile/changepass";
 import ReturnURLPage from "./components/client/order/return.url";
+import { GoogleOAuthProvider } from "@react-oauth/google";
 
 const router = createBrowserRouter([
   {
@@ -170,9 +171,11 @@ createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <App>
       <AppProvider>
-        <ConfigProvider locale={enUS}>
-          <RouterProvider router={router} />
-        </ConfigProvider>
+        <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>
+          <ConfigProvider locale={enUS}>
+            <RouterProvider router={router} />
+          </ConfigProvider>
+        </GoogleOAuthProvider>
       </AppProvider>
     </App>
   </StrictMode>

@@ -46,8 +46,6 @@ declare global {
     role: string;
     avatar: string;
     id: string;
-    oldpass: string;
-    newpass: string;
   }
 
   interface IFetchAccount {
